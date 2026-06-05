@@ -1,0 +1,143 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* 环保浅绿色主题配色 */
+  --primary-color: #8fb67b;
+  --primary-light: #a8c89a;
+  --primary-dark: #73965f;
+  --secondary-color: #c7dbc0;
+  --accent-color: #dcebd4;
+  
+  /* 中性色 */
+  --bg-color: #f4f8f1;
+  --card-bg: #ffffff;
+  --text-primary: #445443;
+  --text-secondary: #6f7d6b;
+  --text-light: #9aa795;
+  --border-color: #dbe5d5;
+  
+  /* 功能色 */
+  --success-color: #7fb069;
+  --warning-color: #d8b56a;
+  --danger-color: #cf7c74;
+  --info-color: #9aa795;
+  
+  /* 阴影 */
+  --shadow-sm: 0 2px 8px rgba(116, 145, 98, 0.08);
+  --shadow-md: 0 6px 18px rgba(116, 145, 98, 0.12);
+  --shadow-lg: 0 12px 28px rgba(116, 145, 98, 0.16);
+}
+
+body {
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(180deg, #f4f8f1 0%, #eef5ea 100%);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Element Plus 主题定制 */
+.el-button--primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.el-button--primary:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+}
+
+.el-button--primary:active {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+/* 卡片样式 */
+.custom-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.custom-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* 页面容器 */
+.page-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* 页面标题 */
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--primary-color);
+  display: inline-block;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+/* 渐变背景 */
+.gradient-bg {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 10px;
+  }
+  
+  .page-title {
+    font-size: 20px;
+  }
+}
+
