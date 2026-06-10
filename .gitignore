@@ -1,0 +1,11 @@
+# 忽略日志文件
+*.log
+*.txt
+
+# 忽略 Redis 持久化文件
+dump.rdb
+appendonly.aof
+
+# 忽略 IDE 配置
+.vscode/
+.idea/
