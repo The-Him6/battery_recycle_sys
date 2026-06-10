@@ -1,11 +1,13 @@
-# 忽略日志文件
-*.log
-*.txt
+### Vue template
+# gitignore template for Vue.js projects
 
-# 忽略 Redis 持久化文件
-dump.rdb
-appendonly.aof
+### Vuejs template
+# Recommended template: Node.gitignore
 
-# 忽略 IDE 配置
-.vscode/
-.idea/
+node_modules/
+dist/
+npm-debug.log
+yarn-error.log
+.idea
+blog.iml
+ruyu-blog-doc/
