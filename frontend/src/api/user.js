@@ -18,6 +18,14 @@ export const login = (data) => {
   })
 }
 
+// 用户退出登录
+export const logout = () => {
+  return request({
+    url: '/auth/logout',
+    method: 'post'
+  })
+}
+
 // 忘记密码
 export const forgotPassword = (data) => {
   return request({
@@ -82,4 +90,3 @@ export const deleteUser = (id) => {
     method: 'delete'
   })
 }
-

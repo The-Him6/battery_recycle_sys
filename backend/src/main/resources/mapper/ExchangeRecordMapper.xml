@@ -13,6 +13,8 @@
         <result column="shipping_address" property="shippingAddress"/>
         <result column="contact_phone" property="contactPhone"/>
         <result column="remark" property="remark"/>
+        <result column="exchange_type" property="exchangeType"/>
+        <result column="coupon_id" property="couponId"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
@@ -38,8 +40,10 @@
     </select>
     
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO exchange_record (user_id, product_id, product_name, points_used, quantity, exchange_status, shipping_address, contact_phone, remark)
-        VALUES (#{userId}, #{productId}, #{productName}, #{pointsUsed}, #{quantity}, #{exchangeStatus}, #{shippingAddress}, #{contactPhone}, #{remark})
+        INSERT INTO exchange_record (user_id, product_id, product_name, points_used, quantity, exchange_status,
+                                     shipping_address, contact_phone, remark, exchange_type, coupon_id)
+        VALUES (#{userId}, #{productId}, #{productName}, #{pointsUsed}, #{quantity}, #{exchangeStatus},
+                #{shippingAddress}, #{contactPhone}, #{remark}, #{exchangeType}, #{couponId})
     </insert>
     
     <update id="update">
@@ -49,6 +53,8 @@
             <if test="shippingAddress != null">shipping_address = #{shippingAddress},</if>
             <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
             <if test="remark != null">remark = #{remark},</if>
+            <if test="exchangeType != null">exchange_type = #{exchangeType},</if>
+            <if test="couponId != null">coupon_id = #{couponId},</if>
         </set>
         WHERE id = #{id}
     </update>

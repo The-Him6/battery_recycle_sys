@@ -86,11 +86,28 @@
           <el-input-number
             v-model="exchangeForm.quantity"
             :min="1"
-            :max="Math.min(currentProduct.stock, Math.floor(userPoints.availablePoints / currentProduct.pointsRequired))"
+            :max="exchangeForm.exchangeType === 1 ? 1 : Math.min(currentProduct.stock, Math.floor(userPoints.availablePoints / currentProduct.pointsRequired))"
+            :disabled="exchangeForm.exchangeType === 1"
           />
         </el-form-item>
+        <el-form-item label="兑换方式">
+          <el-radio-group v-model="exchangeForm.exchangeType" @change="handleExchangeTypeChange">
+            <el-radio :label="0">积分兑换</el-radio>
+            <el-radio :label="1" :disabled="usableCoupons.length === 0">秒杀券兑换</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="exchangeForm.exchangeType === 1" label="秒杀券" prop="couponId">
+          <el-select v-model="exchangeForm.couponId" placeholder="请选择秒杀券">
+            <el-option
+              v-for="coupon in usableCoupons"
+              :key="coupon.id"
+              :label="`券ID ${coupon.id}，有效期至 ${coupon.expireTime}`"
+              :value="coupon.id"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="总计积分">
-          <el-input :value="currentProduct.pointsRequired * exchangeForm.quantity" disabled />
+          <el-input :value="exchangeForm.exchangeType === 1 ? 0 : currentProduct.pointsRequired * exchangeForm.quantity" disabled />
         </el-form-item>
         <el-form-item label="联系电话" prop="contactPhone">
           <el-input v-model="exchangeForm.contactPhone" placeholder="请输入联系电话" />
@@ -124,10 +141,12 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getAvailableProducts } from '@/api/exchangeProduct'
+import { getUsableSeckillCoupons } from '@/api/seckill'
 import request from '@/utils/request'
 
 const userPoints = ref({})
 const productList = ref([])
+const usableCoupons = ref([])
 const selectedBrand = ref('')
 const brands = ref([])
 const exchangeVisible = ref(false)
@@ -137,6 +156,8 @@ const currentProduct = reactive({})
 const exchangeForm = reactive({
   productId: null,
   quantity: 1,
+  exchangeType: 0,
+  couponId: null,
   contactPhone: '',
   shippingAddress: '',
   remark: ''
@@ -144,11 +165,33 @@ const exchangeForm = reactive({
 
 const exchangeRules = {
   quantity: [{ required: true, message: '请输入兑换数量', trigger: 'blur' }],
+  couponId: [
+    {
+      validator: (rule, value, callback) => {
+        if (exchangeForm.exchangeType === 1 && !value) {
+          callback(new Error('请选择秒杀券'))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ],
   contactPhone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
   ],
   shippingAddress: [{ required: true, message: '请输入收货地址', trigger: 'blur' }]
+}
+
+// 加载可用秒杀券
+const loadUsableCoupons = async () => {
+  try {
+    const res = await getUsableSeckillCoupons()
+    usableCoupons.value = res.data || []
+  } catch (error) {
+    usableCoupons.value = []
+  }
 }
 
 // 过滤后的商品列表
@@ -196,13 +239,13 @@ const getProductStatusText = (product) => {
     return '库存不足'
   }
   if (userPoints.value.availablePoints < product.pointsRequired) {
-    return '积分不足'
+    return usableCoupons.value.length > 0 ? '用券兑换' : '积分不足'
   }
   return '立即兑换'
 }
 
 const isProductDisabled = (product) => {
-  return product.status !== 1 || product.stock <= 0 || userPoints.value.availablePoints < product.pointsRequired
+  return product.status !== 1 || product.stock <= 0 || (userPoints.value.availablePoints < product.pointsRequired && usableCoupons.value.length === 0)
 }
 
 // 处理兑换
@@ -214,10 +257,22 @@ const handleExchange = (product) => {
   Object.assign(currentProduct, product)
   exchangeForm.productId = product.id
   exchangeForm.quantity = 1
+  exchangeForm.exchangeType = userPoints.value.availablePoints >= product.pointsRequired ? 0 : 1
+  exchangeForm.couponId = exchangeForm.exchangeType === 1 && usableCoupons.value.length > 0 ? usableCoupons.value[0].id : null
   exchangeForm.contactPhone = ''
   exchangeForm.shippingAddress = ''
   exchangeForm.remark = ''
   exchangeVisible.value = true
+}
+
+// 切换兑换方式时同步数量和券ID
+const handleExchangeTypeChange = () => {
+  if (exchangeForm.exchangeType === 1) {
+    exchangeForm.quantity = 1
+    exchangeForm.couponId = usableCoupons.value[0]?.id || null
+  } else {
+    exchangeForm.couponId = null
+  }
 }
 
 // 确认兑换
@@ -230,6 +285,7 @@ const confirmExchange = () => {
         exchangeVisible.value = false
         loadUserPoints()
         loadProducts()
+        loadUsableCoupons()
       } catch (error) {
         ElMessage.error(error.message || '兑换失败')
       }
@@ -240,6 +296,7 @@ const confirmExchange = () => {
 onMounted(() => {
   loadUserPoints()
   loadProducts()
+  loadUsableCoupons()
 })
 </script>
 
@@ -409,7 +466,6 @@ onMounted(() => {
   width: 100%;
 }
 </style>
-
 
 
 

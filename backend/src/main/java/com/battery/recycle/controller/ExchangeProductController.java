@@ -1,5 +1,7 @@
 package com.battery.recycle.controller;
 
+import com.battery.recycle.util.AuthUtil;
+
 import com.battery.recycle.annotation.OssUpload;
 import com.battery.recycle.common.Result;
 import com.battery.recycle.constant.SystemConstants;
@@ -7,8 +9,7 @@ import com.battery.recycle.entity.ExchangeProduct;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.service.ExchangeProductService;
 import com.battery.recycle.service.FileUploadService;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,10 +22,10 @@ import java.util.List;
 @RequestMapping("/exchange-product")
 public class ExchangeProductController {
 
-    @Autowired
+    @Resource
     private ExchangeProductService exchangeProductService;
 
-    @Autowired
+    @Resource
     private FileUploadService fileUploadService;
 
     /**
@@ -40,8 +41,8 @@ public class ExchangeProductController {
      * 查询所有商品（管理员）
      */
     @GetMapping("/list")
-    public Result<List<ExchangeProduct>> listAll(HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<List<ExchangeProduct>> listAll() {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -71,8 +72,8 @@ public class ExchangeProductController {
      * 添加商品（管理员）
      */
     @PostMapping
-    public Result<Void> add(@RequestBody ExchangeProduct product, HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<Void> add(@RequestBody ExchangeProduct product) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -84,8 +85,8 @@ public class ExchangeProductController {
      * 更新商品（管理员）
      */
     @PutMapping
-    public Result<Void> update(@RequestBody ExchangeProduct product, HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<Void> update(@RequestBody ExchangeProduct product) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -97,8 +98,8 @@ public class ExchangeProductController {
      * 删除商品（管理员）
      */
     @DeleteMapping("/{id}")
-    public Result<Void> deleteById(@PathVariable Long id, HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<Void> deleteById(@PathVariable Long id) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -112,8 +113,8 @@ public class ExchangeProductController {
     @PostMapping("/upload-image")
     @OssUpload(path = "image_url/", allowedTypes = { "image/jpeg", "image/png", "image/jpg", "image/gif" }, maxSize = 2
             * 1024 * 1024)
-    public Result<String> uploadImage(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<String> uploadImage(@RequestParam("file") MultipartFile file) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }

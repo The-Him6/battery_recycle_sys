@@ -1,9 +1,13 @@
 package com.battery.recycle.controller;
 
+import com.battery.recycle.util.AuthUtil;
+
+import jakarta.annotation.Resource;
+
 import com.battery.recycle.common.Result;
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.service.StatisticsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.battery.recycle.vo.DashboardOverviewVO;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -17,8 +21,18 @@ import java.util.Map;
 @RequestMapping("/statistics")
 public class StatisticsController {
 
-    @Autowired
+    @Resource
     private StatisticsService statisticsService;
+
+    /**
+     * 获取管理员首页概览数字。
+     */
+    @GetMapping("/dashboard")
+    public Result<DashboardOverviewVO> getDashboardOverview() {
+        AuthUtil.requireAdmin();
+        DashboardOverviewVO data = statisticsService.getDashboardOverview();
+        return Result.success(SystemConstants.STATISTICS_QUERY_SUCCESS, data);
+    }
 
     /**
      * 统计每种电池的回收数量
@@ -86,4 +100,5 @@ public class StatisticsController {
         overview.put("cityRankStats", statisticsService.countByCity(5));
         return Result.success(SystemConstants.STATISTICS_QUERY_SUCCESS, overview);
     }
+
 }

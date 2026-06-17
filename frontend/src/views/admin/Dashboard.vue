@@ -91,8 +91,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { User, Document, Box, TrendCharts } from '@element-plus/icons-vue'
-import { getUserList } from '@/api/user'
-import { getAllOrders } from '@/api/order'
+import { getDashboardOverview } from '@/api/statistics'
 
 const stats = ref({
   userCount: 0,
@@ -103,23 +102,15 @@ const stats = ref({
 
 const loadStats = async () => {
   try {
-    // 获取用户数
-    const userRes = await getUserList()
-    stats.value.userCount = userRes.data?.length || 0
-    
-    // 获取订单数据
-    const orderRes = await getAllOrders()
-    const orders = orderRes.data || []
-    stats.value.orderCount = orders.length
-    
-    // 计算回收电池总数
-    stats.value.batteryCount = orders.reduce((sum, order) => sum + (order.totalCount || 0), 0)
-    
-    // 计算今日回收数
-    const today = new Date().toISOString().split('T')[0]
-    stats.value.todayCount = orders
-      .filter(order => order.createTime?.startsWith(today))
-      .reduce((sum, order) => sum + (order.totalCount || 0), 0)
+    // 后端直接返回概览卡片需要的数字，避免前端拉取用户和订单全量列表。
+    const res = await getDashboardOverview()
+    const data = res.data || {}
+
+    // 逐个兜底，保证接口字段异常时页面仍能展示为0。
+    stats.value.userCount = Number(data.userCount) || 0
+    stats.value.orderCount = Number(data.orderCount) || 0
+    stats.value.batteryCount = Number(data.batteryCount) || 0
+    stats.value.todayCount = Number(data.todayCount) || 0
   } catch (error) {
     console.error('加载统计数据失败：', error)
   }
@@ -219,4 +210,3 @@ onMounted(() => {
   }
 }
 </style>
-

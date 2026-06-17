@@ -1,10 +1,11 @@
 package com.battery.recycle.service;
 
+import jakarta.annotation.Resource;
+
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.BatteryType;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mapper.BatteryTypeMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 @Service
 public class BatteryTypeService {
     
-    @Autowired
+    @Resource
     private BatteryTypeMapper batteryTypeMapper;
     
     /**

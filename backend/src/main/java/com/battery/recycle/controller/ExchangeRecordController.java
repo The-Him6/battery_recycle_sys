@@ -1,5 +1,7 @@
 package com.battery.recycle.controller;
 
+import com.battery.recycle.util.AuthUtil;
+
 import com.battery.recycle.common.Result;
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.ExchangeRecord;
@@ -7,8 +9,7 @@ import com.battery.recycle.entity.UserPoints;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.service.ExchangeRecordService;
 import com.battery.recycle.service.UserPointsService;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -22,18 +23,18 @@ import java.util.Map;
 @RequestMapping("/exchange-record")
 public class ExchangeRecordController {
 
-    @Autowired
+    @Resource
     private ExchangeRecordService exchangeRecordService;
 
-    @Autowired
+    @Resource
     private UserPointsService userPointsService;
 
     /**
      * 获取用户积分信息
      */
     @GetMapping("/points")
-    public Result<UserPoints> getUserPoints(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public Result<UserPoints> getUserPoints() {
+        Long userId = AuthUtil.getUserId();
         UserPoints userPoints = userPointsService.getByUserId(userId);
         return Result.success(userPoints);
     }
@@ -42,9 +43,9 @@ public class ExchangeRecordController {
      * 根据ID查询记录
      */
     @GetMapping("/{id}")
-    public Result<ExchangeRecord> getById(@PathVariable Long id, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<ExchangeRecord> getById(@PathVariable Long id) {
+        Long userId = AuthUtil.getUserId();
+        Integer role = AuthUtil.getRole();
 
         ExchangeRecord record = exchangeRecordService.getById(id);
 
@@ -60,8 +61,8 @@ public class ExchangeRecordController {
      * 查询所有记录（管理员）
      */
     @GetMapping("/list")
-    public Result<List<ExchangeRecord>> listAll(HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<List<ExchangeRecord>> listAll() {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -73,8 +74,8 @@ public class ExchangeRecordController {
      * 查询我的兑换记录
      */
     @GetMapping("/my")
-    public Result<List<ExchangeRecord>> listMyRecords(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public Result<List<ExchangeRecord>> listMyRecords() {
+        Long userId = AuthUtil.getUserId();
         List<ExchangeRecord> list = exchangeRecordService.listByUserId(userId);
         return Result.success(list);
     }
@@ -85,9 +86,8 @@ public class ExchangeRecordController {
     @GetMapping("/page")
     public Result<Map<String, Object>> listByPage(
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+            @RequestParam(defaultValue = "10") Integer size) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -108,8 +108,8 @@ public class ExchangeRecordController {
      * 创建兑换记录
      */
     @PostMapping
-    public Result<Void> createExchange(@RequestBody ExchangeRecord record, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public Result<Void> createExchange(@RequestBody ExchangeRecord record) {
+        Long userId = AuthUtil.getUserId();
         record.setUserId(userId);
         exchangeRecordService.createExchange(record);
         return Result.success("兑换成功", null);
@@ -119,9 +119,8 @@ public class ExchangeRecordController {
      * 更新兑换状态（管理员）
      */
     @PutMapping("/{id}/status")
-    public Result<Void> updateStatus(@PathVariable Long id, @RequestBody Map<String, Integer> params,
-            HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<Void> updateStatus(@PathVariable Long id, @RequestBody Map<String, Integer> params) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }

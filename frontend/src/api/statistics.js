@@ -1,5 +1,13 @@
 import request from '@/utils/request'
 
+// 获取管理员首页概览数字
+export const getDashboardOverview = () => {
+  return request({
+    url: '/statistics/dashboard',
+    method: 'get'
+  })
+}
+
 // 统计每种电池的回收数量
 export const countByBatteryType = () => {
   return request({
@@ -57,4 +65,3 @@ export const getOverview = () => {
     method: 'get'
   })
 }
-

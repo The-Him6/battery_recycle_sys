@@ -1,13 +1,18 @@
 package com.battery.recycle.service;
 
+import jakarta.annotation.Resource;
+
 import com.battery.recycle.constant.SystemConstants;
+import com.battery.recycle.constant.RedisConstants;
 import com.battery.recycle.entity.ExchangeProduct;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mapper.ExchangeProductMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.battery.recycle.util.CacheClient;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 兑换商品服务类
@@ -15,14 +20,27 @@ import java.util.List;
 @Service
 public class ExchangeProductService {
 
-    @Autowired
+    @Resource
     private ExchangeProductMapper exchangeProductMapper;
+
+    @Resource
+    private CacheClient cacheClient;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 根据ID查询商品
      */
     public ExchangeProduct getById(Long id) {
-        ExchangeProduct product = exchangeProductMapper.getById(id);
+        ExchangeProduct product = cacheClient.queryWithMutex(
+                RedisConstants.CACHE_PRODUCT_KEY,
+                id,
+                ExchangeProduct.class,
+                exchangeProductMapper::getById,
+                RedisConstants.CACHE_NORMAL_TTL,
+                TimeUnit.MINUTES
+        );
         if (product == null) {
             throw new BusinessException("商品不存在");
         }
@@ -61,6 +79,7 @@ public class ExchangeProductService {
             product.setPointsRequired(1000);
         }
         exchangeProductMapper.insert(product);
+        deleteProductCache(product.getId());
     }
 
     /**
@@ -72,6 +91,7 @@ public class ExchangeProductService {
             throw new BusinessException("商品不存在");
         }
         exchangeProductMapper.update(product);
+        deleteProductCache(product.getId());
     }
 
     /**
@@ -83,6 +103,7 @@ public class ExchangeProductService {
             throw new BusinessException("商品不存在");
         }
         exchangeProductMapper.deleteById(id);
+        deleteProductCache(id);
     }
 
     /**
@@ -90,7 +111,19 @@ public class ExchangeProductService {
      */
     public boolean updateStock(Long id, Integer quantity) {
         int result = exchangeProductMapper.updateStock(id, quantity);
+        if (result > 0) {
+            deleteProductCache(id);
+        }
         return result > 0;
+    }
+
+    /**
+     * 删除商品缓存，保证库存和上下架状态更新后不会读到旧数据
+     */
+    private void deleteProductCache(Long id) {
+        if (id != null) {
+            stringRedisTemplate.delete(RedisConstants.CACHE_PRODUCT_KEY + id);
+        }
     }
 }
 

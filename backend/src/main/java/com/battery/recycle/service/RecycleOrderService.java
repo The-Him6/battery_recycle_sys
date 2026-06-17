@@ -1,5 +1,7 @@
 package com.battery.recycle.service;
 
+import jakarta.annotation.Resource;
+
 import com.battery.recycle.common.PageRequest;
 import com.battery.recycle.common.PageResult;
 import com.battery.recycle.constant.SystemConstants;
@@ -14,7 +16,6 @@ import com.battery.recycle.mapper.RecycleOrderMapper;
 import com.battery.recycle.mapper.UserMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,19 +29,19 @@ import java.util.List;
 @Service
 public class RecycleOrderService {
 
-    @Autowired
+    @Resource
     private RecycleOrderMapper recycleOrderMapper;
 
-    @Autowired
+    @Resource
     private RecycleDetailMapper recycleDetailMapper;
 
-    @Autowired
+    @Resource
     private BatteryTypeMapper batteryTypeMapper;
 
-    @Autowired
+    @Resource
     private UserMapper userMapper;
 
-    @Autowired
+    @Resource
     private UserPointsService userPointsService;
 
     /**

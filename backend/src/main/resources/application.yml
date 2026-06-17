@@ -5,9 +5,42 @@ spring:
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/battery_recycle_system_1?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:battery_recycle_system_1}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:}
+
+  # Redis配置：用于登录态、缓存和秒杀库存预扣
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 1
+          max-wait: 3000ms
+
+  # RabbitMQ配置：用于秒杀成功后的异步发券
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST:/}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+        prefetch: 1
+        concurrency: 1
+        max-concurrency: 4
   
   # 文件上传配置
   servlet:
@@ -39,6 +72,10 @@ jwt:
   secret: battery-recycle-system-secret-key-2026
   expiration: 43200000  # 12小时（毫秒）
 
+# 登录态配置
+login:
+  state-expiration: 3600000  # Redis登录态1小时（毫秒），每次请求会刷新
+
 # 文件上传路径
 file:
   upload-path: ./uploads/
@@ -52,4 +89,7 @@ aliyun:
     access-key-secret: ${OSS_ACCESS_KEY_SECRET}
     bucket-name: ${OSS_BUCKET_NAME}
 
-
+# 秒杀消息配置：默认使用RabbitMQ，保留Redis Stream实现方便学习对比
+seckill:
+  mq:
+    type: rabbitmq

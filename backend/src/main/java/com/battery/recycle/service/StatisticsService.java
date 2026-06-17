@@ -1,7 +1,9 @@
 package com.battery.recycle.service;
 
+import jakarta.annotation.Resource;
+
 import com.battery.recycle.mapper.StatisticsMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.battery.recycle.vo.DashboardOverviewVO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,8 +15,15 @@ import java.util.Map;
 @Service
 public class StatisticsService {
 
-    @Autowired
+    @Resource
     private StatisticsMapper statisticsMapper;
+
+    /**
+     * 查询管理员首页数据概览，后端直接聚合数字，避免前端拉全量列表再计算。
+     */
+    public DashboardOverviewVO getDashboardOverview() {
+        return statisticsMapper.selectDashboardOverview();
+    }
 
     /**
      * 统计每种电池的回收数量

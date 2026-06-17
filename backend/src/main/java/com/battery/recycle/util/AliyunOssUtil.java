@@ -1,10 +1,11 @@
 package com.battery.recycle.util;
 
+import jakarta.annotation.Resource;
+
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.exception.BusinessException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @Component
 public class AliyunOssUtil {
 
-    @Autowired
+    @Resource
     private OSS ossClient;
 
     @Value("${aliyun.oss.bucket-name}")

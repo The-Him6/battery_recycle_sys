@@ -6,10 +6,14 @@ import com.battery.recycle.dto.ForgotPasswordDTO;
 import com.battery.recycle.dto.LoginDTO;
 import com.battery.recycle.dto.RegisterDTO;
 import com.battery.recycle.service.AuthService;
+import com.battery.recycle.util.AuthUtil;
 import com.battery.recycle.vo.LoginVO;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 认证控制器
@@ -18,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
     
-    @Autowired
+    @Resource
     private AuthService authService;
     
     /**
@@ -40,6 +44,15 @@ public class AuthController {
     }
 
     /**
+     * 用户退出登录
+     */
+    @PostMapping("/logout")
+    public Result<Void> logout() {
+        authService.logout(AuthUtil.getJti());
+        return Result.success(SystemConstants.USER_LOGOUT_SUCCESS, null);
+    }
+
+    /**
      * 忘记密码
      */
     @PostMapping("/forgot-password")
@@ -48,4 +61,3 @@ public class AuthController {
         return Result.success(SystemConstants.USER_PASSWORD_RESET_SUCCESS, null);
     }
 }
-
