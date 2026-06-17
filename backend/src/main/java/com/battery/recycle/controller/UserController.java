@@ -1,5 +1,9 @@
 package com.battery.recycle.controller;
 
+import com.battery.recycle.util.AuthUtil;
+
+import jakarta.annotation.Resource;
+
 import com.battery.recycle.annotation.OssUpload;
 import com.battery.recycle.common.PageRequest;
 import com.battery.recycle.common.PageResult;
@@ -11,8 +15,6 @@ import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.service.FileUploadService;
 import com.battery.recycle.service.UserService;
 import com.battery.recycle.vo.UserVO;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,18 +27,18 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
+    @Resource
     private UserService userService;
 
-    @Autowired
+    @Resource
     private FileUploadService fileUploadService;
 
     /**
      * 获取当前用户信息
      */
     @GetMapping("/info")
-    public Result<UserVO> getCurrentUserInfo(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public Result<UserVO> getCurrentUserInfo() {
+        Long userId = AuthUtil.getUserId();
         UserVO userVO = userService.getById(userId);
         return Result.success(userVO);
     }
@@ -54,8 +56,8 @@ public class UserController {
      * 查询所有用户（仅管理员）
      */
     @GetMapping("/list")
-    public Result<List<UserVO>> listAll(HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<List<UserVO>> listAll() {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -71,9 +73,8 @@ public class UserController {
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) String username,
-            HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+            @RequestParam(required = false) String username) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -97,9 +98,9 @@ public class UserController {
      * 更新用户信息
      */
     @PutMapping
-    public Result<Void> update(@RequestBody User user, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<Void> update(@RequestBody User user) {
+        Long userId = AuthUtil.getUserId();
+        Integer role = AuthUtil.getRole();
 
         // 普通用户只能修改自己的信息
         if (!role.equals(SystemConstants.ROLE_ADMIN) && !user.getId().equals(userId)) {
@@ -114,8 +115,8 @@ public class UserController {
      * 当前用户修改密码
      */
     @PutMapping("/change-password")
-    public Result<Void> changePassword(@RequestBody ChangePasswordDTO dto, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public Result<Void> changePassword(@RequestBody ChangePasswordDTO dto) {
+        Long userId = AuthUtil.getUserId();
         userService.changePassword(userId, dto);
         return Result.success("密码修改成功", null);
     }
@@ -124,8 +125,8 @@ public class UserController {
      * 添加用户（仅管理员）
      */
     @PostMapping
-    public Result<Void> addUser(@RequestBody User user, HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<Void> addUser(@RequestBody User user) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -137,8 +138,8 @@ public class UserController {
      * 删除用户（仅管理员）
      */
     @DeleteMapping("/{id}")
-    public Result<Void> deleteById(@PathVariable Long id, HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<Void> deleteById(@PathVariable Long id) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -152,8 +153,8 @@ public class UserController {
     @PostMapping("/avatar")
     @OssUpload(path = "avatar/", allowedTypes = { "image/jpeg", "image/png", "image/jpg", "image/gif" }, maxSize = 2
             * 1024 * 1024)
-    public Result<String> uploadAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public Result<String> uploadAvatar(@RequestParam("file") MultipartFile file) {
+        Long userId = AuthUtil.getUserId();
 
         // 上传文件到OSS
         String avatarUrl = fileUploadService.uploadAvatar(file);

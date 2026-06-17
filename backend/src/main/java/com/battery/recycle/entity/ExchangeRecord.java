@@ -62,6 +62,16 @@ public class ExchangeRecord implements Serializable {
      * 备注
      */
     private String remark;
+
+    /**
+     * 兑换类型：0-普通积分兑换，1-秒杀券兑换
+     */
+    private Integer exchangeType;
+
+    /**
+     * 使用的秒杀券ID
+     */
+    private Long couponId;
     
     /**
      * 创建时间

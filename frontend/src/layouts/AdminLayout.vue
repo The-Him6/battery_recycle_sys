@@ -55,6 +55,16 @@
             <el-icon><ShoppingCart /></el-icon>
             <span>兑换商品管理</span>
           </el-menu-item>
+
+          <el-menu-item index="/admin/seckill-activities">
+            <el-icon><Ticket /></el-icon>
+            <span>秒杀活动管理</span>
+          </el-menu-item>
+
+          <el-menu-item index="/admin/notices">
+            <el-icon><Bell /></el-icon>
+            <span>系统弹窗管理</span>
+          </el-menu-item>
           
           <el-menu-item index="/admin/exchange-records">
             <el-icon><List /></el-icon>
@@ -98,10 +108,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { 
   DataAnalysis, User, Box, Document, 
-  TrendCharts, Tickets, Setting, SwitchButton,
-  ShoppingCart, List
+  TrendCharts, Setting, SwitchButton,
+  ShoppingCart, List, Ticket, Bell
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import { logout } from '@/api/user'
 import BatteryIcon from '@/components/BatteryIcon.vue'
 
 const route = useRoute()
@@ -115,7 +126,12 @@ const handleLogout = () => {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
-  }).then(() => {
+  }).then(async () => {
+    try {
+      await logout()
+    } catch (error) {
+      // 本地退出优先，服务端登录态失效失败不阻塞用户离开页面
+    }
     userStore.logout('/admin')
     ElMessage.success('已退出登录')
     router.push('/login')
@@ -201,4 +217,3 @@ const handleLogout = () => {
   overflow-y: auto;
 }
 </style>
-

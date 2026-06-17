@@ -1,5 +1,9 @@
 package com.battery.recycle.controller;
 
+import com.battery.recycle.util.AuthUtil;
+
+import jakarta.annotation.Resource;
+
 import com.battery.recycle.common.PageRequest;
 import com.battery.recycle.common.PageResult;
 import com.battery.recycle.common.Result;
@@ -10,9 +14,7 @@ import com.battery.recycle.entity.RecycleOrder;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.service.RecycleOrderService;
 import com.battery.recycle.vo.OrderVO;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -27,16 +29,16 @@ import java.util.Map;
 @RequestMapping("/order")
 public class RecycleOrderController {
 
-    @Autowired
+    @Resource
     private RecycleOrderService recycleOrderService;
 
     /**
      * 根据ID查询订单
      */
     @GetMapping("/{id}")
-    public Result<OrderVO> getById(@PathVariable Long id, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<OrderVO> getById(@PathVariable Long id) {
+        Long userId = AuthUtil.getUserId();
+        Integer role = AuthUtil.getRole();
 
         RecycleOrder order = recycleOrderService.getById(id);
 
@@ -59,8 +61,8 @@ public class RecycleOrderController {
      * 查询所有订单（管理员）
      */
     @GetMapping("/list")
-    public Result<List<RecycleOrder>> listAll(HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<List<RecycleOrder>> listAll() {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -78,9 +80,8 @@ public class RecycleOrderController {
             @RequestParam(required = false) String address,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
-            @RequestParam(required = false) Integer orderStatus,
-            HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+            @RequestParam(required = false) Integer orderStatus) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -110,9 +111,8 @@ public class RecycleOrderController {
     public Result<List<RecycleOrder>> listMyOrders(
             @RequestParam(required = false) String address,
             @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate,
-            HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+            @RequestParam(required = false) String endDate) {
+        Long userId = AuthUtil.getUserId();
 
         List<RecycleOrder> list;
         // 如果有搜索条件，使用搜索方法
@@ -131,8 +131,8 @@ public class RecycleOrderController {
      * 创建订单
      */
     @PostMapping
-    public Result<Void> createOrder(@RequestBody CreateOrderDTO dto, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public Result<Void> createOrder(@RequestBody CreateOrderDTO dto) {
+        Long userId = AuthUtil.getUserId();
 
         // 构建订单对象
         RecycleOrder order = new RecycleOrder();
@@ -158,9 +158,8 @@ public class RecycleOrderController {
      * 更新订单状态（管理员）
      */
     @PutMapping("/{id}/status")
-    public Result<Void> updateStatus(@PathVariable Long id, @RequestBody Map<String, Integer> params,
-            HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<Void> updateStatus(@PathVariable Long id, @RequestBody Map<String, Integer> params) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -174,8 +173,8 @@ public class RecycleOrderController {
      * 取消订单
      */
     @PutMapping("/{id}/cancel")
-    public Result<Void> cancelOrder(@PathVariable Long id, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public Result<Void> cancelOrder(@PathVariable Long id) {
+        Long userId = AuthUtil.getUserId();
         recycleOrderService.cancelOrder(id, userId);
         return Result.success(SystemConstants.ORDER_CANCEL_SUCCESS, null);
     }

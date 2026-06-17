@@ -1,5 +1,6 @@
 package com.battery.recycle.mapper;
 
+import com.battery.recycle.vo.DashboardOverviewVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -11,6 +12,11 @@ import java.util.Map;
  */
 @Mapper
 public interface StatisticsMapper {
+
+    /**
+     * 查询管理员首页需要的概览数字。
+     */
+    DashboardOverviewVO selectDashboardOverview();
 
     /**
      * 统计每种电池的回收数量

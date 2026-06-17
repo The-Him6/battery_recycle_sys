@@ -1,8 +1,9 @@
 package com.battery.recycle.service;
 
+import jakarta.annotation.Resource;
+
 import com.battery.recycle.entity.UserPoints;
 import com.battery.recycle.mapper.UserPointsMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserPointsService {
 
-    @Autowired
+    @Resource
     private UserPointsMapper userPointsMapper;
 
     /**

@@ -57,6 +57,23 @@ public class SystemConstants {
     
     // ==================== 数据统计相关 ====================
     public static final String STATISTICS_QUERY_SUCCESS = "查询统计数据成功";
+
+    // ==================== 秒杀优惠券相关 ====================
+    public static final String SECKILL_ACTIVITY_NOT_FOUND = "秒杀活动不存在";
+    public static final String SECKILL_ACTIVITY_NOT_STARTED = "秒杀活动未开始";
+    public static final String SECKILL_ACTIVITY_ENDED = "秒杀活动已结束";
+    public static final String SECKILL_ACTIVITY_OFFLINE = "秒杀活动未上架";
+    public static final String SECKILL_STOCK_NOT_ENOUGH = "秒杀券库存不足";
+    public static final String SECKILL_REPEAT_ORDER = "每场活动只能抢一张券";
+    public static final String SECKILL_COUPON_NOT_FOUND = "秒杀券不存在";
+    public static final String SECKILL_COUPON_NOT_EFFECTIVE = "秒杀券尚未生效";
+    public static final String SECKILL_COUPON_EXPIRED = "秒杀券已过期";
+    public static final String SECKILL_COUPON_USED = "秒杀券已使用";
+    public static final String SECKILL_POINTS_NOT_ENOUGH = "积分不足，无法秒杀";
+    public static final String SECKILL_MQ_SEND_FAILED = "秒杀请求繁忙，请稍后再试";
+
+    // ==================== 系统公告相关 ====================
+    public static final String NOTICE_NOT_FOUND = "系统公告不存在";
     
     // ==================== 通用提示 ====================
     public static final String OPERATION_SUCCESS = "操作成功";
@@ -78,6 +95,26 @@ public class SystemConstants {
     public static final Integer ORDER_STATUS_PROCESSING = 1; // 处理中
     public static final Integer ORDER_STATUS_COMPLETED = 2;  // 已完成
     public static final Integer ORDER_STATUS_CANCELLED = 3;  // 已取消
+
+    // ==================== 兑换类型 ====================
+    public static final Integer EXCHANGE_TYPE_POINTS = 0; // 普通积分兑换
+    public static final Integer EXCHANGE_TYPE_SECKILL_COUPON = 1; // 秒杀券兑换
+
+    // ==================== 秒杀活动状态 ====================
+    public static final Integer SECKILL_STATUS_DRAFT = 0; // 草稿
+    public static final Integer SECKILL_STATUS_ONLINE = 1; // 上架
+    public static final Integer SECKILL_STATUS_OFFLINE = 2; // 下架
+    public static final Integer SECKILL_STATUS_FINISHED = 3; // 结束
+
+    // ==================== 秒杀券状态 ====================
+    public static final Integer COUPON_STATUS_UNUSED = 0; // 未使用
+    public static final Integer COUPON_STATUS_USED = 1; // 已使用
+    public static final Integer COUPON_STATUS_EXPIRED = 2; // 已过期
+
+    // ==================== 公告状态 ====================
+    public static final Integer NOTICE_STATUS_DRAFT = 0; // 草稿
+    public static final Integer NOTICE_STATUS_PUBLISHED = 1; // 已发布
+    public static final Integer NOTICE_STATUS_REVOKED = 2; // 已撤回
     
     // ==================== 电池通道 ====================
     public static final Integer CHANNEL_NORMAL = 1;      // 普通干电池
@@ -93,4 +130,3 @@ public class SystemConstants {
     public static final String[] ALLOWED_IMAGE_TYPES = {"jpg", "jpeg", "png", "gif"};
     public static final Long MAX_FILE_SIZE = 10 * 1024 * 1024L; // 10MB
 }
-

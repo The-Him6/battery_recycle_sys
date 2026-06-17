@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * JWT工具类
@@ -37,16 +38,25 @@ public class JwtUtil {
      * 生成Token
      */
     public String generateToken(Long userId, String username, Integer role) {
+        return generateToken(userId, username, role, UUID.randomUUID().toString());
+    }
+
+    /**
+     * 生成带jti的Token，jti用于把JWT与Redis登录态绑定
+     */
+    public String generateToken(Long userId, String username, Integer role, String jti) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", username);
         claims.put("role", role);
+        claims.put("jti", jti);
         
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
         
         return Jwts.builder()
                 .claims(claims)
+                .id(jti)
                 .subject(username)
                 .issuedAt(now)
                 .expiration(expiryDate)
@@ -91,6 +101,15 @@ public class JwtUtil {
     public Integer getRoleFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         return claims.get("role", Integer.class);
+    }
+
+    /**
+     * 从Token中获取JWT编号
+     */
+    public String getJtiFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        String jti = claims.get("jti", String.class);
+        return jti != null ? jti : claims.getId();
     }
     
     /**

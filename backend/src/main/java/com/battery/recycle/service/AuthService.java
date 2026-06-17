@@ -11,9 +11,11 @@ import com.battery.recycle.util.JwtUtil;
 import com.battery.recycle.util.Md5Util;
 import com.battery.recycle.vo.LoginVO;
 import com.battery.recycle.vo.UserVO;
+import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 /**
  * 认证服务类
@@ -21,11 +23,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
     
-    @Autowired
+    @Resource
     private UserMapper userMapper;
 
-    @Autowired
+    @Resource
     private JwtUtil jwtUtil;
+
+    @Resource
+    private LoginStateService loginStateService;
     
     /**
      * 用户注册
@@ -71,14 +76,23 @@ public class AuthService {
             throw new BusinessException(SystemConstants.USER_DISABLED);
         }
         
-        // 生成Token
-        String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
-        
         // 构建用户信息VO
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
+
+        // 生成带jti的Token，并把jti写入Redis登录态
+        String jti = UUID.randomUUID().toString();
+        String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole(), jti);
+        loginStateService.saveLoginState(jti, userVO);
         
         return new LoginVO(token, userVO);
+    }
+
+    /**
+     * 用户退出登录
+     */
+    public void logout(String jti) {
+        loginStateService.removeLoginState(jti);
     }
 
     /**
@@ -103,4 +117,3 @@ public class AuthService {
         }
     }
 }
-

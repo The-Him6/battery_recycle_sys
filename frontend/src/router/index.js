@@ -84,6 +84,16 @@ const routes = [
         component: () => import('@/views/admin/ExchangeProductManage.vue')
       },
       {
+        path: 'seckill-activities',
+        name: 'SeckillActivityManage',
+        component: () => import('@/views/admin/SeckillActivityManage.vue')
+      },
+      {
+        path: 'notices',
+        name: 'SystemNoticeManage',
+        component: () => import('@/views/admin/SystemNoticeManage.vue')
+      },
+      {
         path: 'exchange-records',
         name: 'ExchangeRecordManage',
         component: () => import('@/views/admin/ExchangeRecordManage.vue')
@@ -124,6 +134,16 @@ const routes = [
         path: 'points-exchange',
         name: 'PointsExchange',
         component: () => import('@/views/user/PointsExchange.vue')
+      },
+      {
+        path: 'seckill',
+        name: 'UserSeckill',
+        component: () => import('@/views/user/Seckill.vue')
+      },
+      {
+        path: 'coupons',
+        name: 'MyCoupons',
+        component: () => import('@/views/user/MyCoupons.vue')
       },
       {
         path: 'my-exchange',
@@ -194,4 +214,3 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
-

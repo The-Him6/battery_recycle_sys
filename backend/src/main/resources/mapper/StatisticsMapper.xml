@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.battery.recycle.mapper.StatisticsMapper">
+
+    <!-- 查询管理员首页概览数字，只返回卡片展示需要的聚合结果 -->
+    <select id="selectDashboardOverview" resultType="com.battery.recycle.vo.DashboardOverviewVO">
+        SELECT
+            (SELECT COUNT(*) FROM user) AS userCount,
+            (SELECT COUNT(*) FROM recycle_order) AS orderCount,
+            COALESCE((SELECT SUM(total_count) FROM recycle_order), 0) AS batteryCount,
+            COALESCE((SELECT SUM(total_count) FROM recycle_order WHERE DATE(create_time) = CURDATE()), 0) AS todayCount
+    </select>
     
     <!-- 统计每种电池的回收数量 -->
     <select id="countByBatteryType" resultType="java.util.HashMap">
@@ -90,4 +99,3 @@
     </select>
     
 </mapper>
-

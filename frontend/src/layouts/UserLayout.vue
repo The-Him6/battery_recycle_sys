@@ -36,6 +36,16 @@
             <el-icon><ShoppingCart /></el-icon>
             <span>积分兑换</span>
           </el-menu-item>
+
+          <el-menu-item index="/user/seckill">
+            <el-icon><Ticket /></el-icon>
+            <span>秒杀抢券</span>
+          </el-menu-item>
+
+          <el-menu-item index="/user/coupons">
+            <el-icon><Tickets /></el-icon>
+            <span>我的券包</span>
+          </el-menu-item>
           
           <el-menu-item index="/user/my-exchange">
             <el-icon><List /></el-icon>
@@ -61,34 +71,94 @@
         <router-view />
       </el-main>
     </el-container>
+
+    <el-dialog
+      v-model="noticeVisible"
+      :title="currentNotice?.title || '系统通知'"
+      width="520px"
+      :close-on-click-modal="false"
+      @closed="handleNoticeClosed"
+    >
+      <div class="notice-content">{{ currentNotice?.content }}</div>
+      <template #footer>
+        <el-button type="primary" @click="noticeVisible = false">我知道了</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { HomeFilled, Plus, Document, User, SwitchButton, ShoppingCart, List } from '@element-plus/icons-vue'
+import { HomeFilled, Plus, Document, User, SwitchButton, ShoppingCart, List, Ticket, Tickets } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import { logout } from '@/api/user'
+import { getActiveNotices, markNoticeRead } from '@/api/notice'
 import BatteryIcon from '@/components/BatteryIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const noticeQueue = ref([])
+const currentNotice = ref(null)
+const noticeVisible = ref(false)
 
 const activeMenu = computed(() => route.path)
+
+// 加载当前用户未读弹窗公告
+const loadActiveNotices = async () => {
+  try {
+    const res = await getActiveNotices()
+    noticeQueue.value = res.data || []
+    showNextNotice()
+  } catch (error) {
+    noticeQueue.value = []
+  }
+}
+
+// 按队列展示公告，保证用户逐条确认
+const showNextNotice = () => {
+  if (noticeVisible.value || noticeQueue.value.length === 0) {
+    return
+  }
+  currentNotice.value = noticeQueue.value.shift()
+  noticeVisible.value = true
+}
+
+// 弹窗关闭后标记已读，再展示下一条
+const handleNoticeClosed = async () => {
+  if (currentNotice.value?.id) {
+    try {
+      await markNoticeRead(currentNotice.value.id)
+    } catch (error) {
+      // 已读失败不阻塞后续公告展示，后端唯一索引保证重复提交幂等
+    }
+  }
+  currentNotice.value = null
+  showNextNotice()
+}
 
 const handleLogout = () => {
   ElMessageBox.confirm('确定要退出登录吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
-  }).then(() => {
+  }).then(async () => {
+    try {
+      await logout()
+    } catch (error) {
+      // 本地退出优先，服务端登录态失效失败不阻塞用户离开页面
+    }
     userStore.logout('/user')
     ElMessage.success('已退出登录')
     router.push('/login')
   }).catch(() => {})
 }
+
+onMounted(() => {
+  loadActiveNotices()
+})
 </script>
 
 <style scoped>
@@ -148,5 +218,10 @@ const handleLogout = () => {
   margin: 0 auto;
   width: 100%;
 }
-</style>
 
+.notice-content {
+  white-space: pre-wrap;
+  line-height: 1.8;
+  color: #303133;
+}
+</style>

@@ -1,5 +1,7 @@
 package com.battery.recycle.aspect;
 
+import jakarta.annotation.Resource;
+
 import com.battery.recycle.annotation.OssUpload;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.util.AliyunOssUtil;
@@ -8,7 +10,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,7 +25,7 @@ import java.util.Arrays;
 @Slf4j
 public class OssUploadAspect {
 
-    @Autowired
+    @Resource
     private AliyunOssUtil aliyunOssUtil;
 
     /**

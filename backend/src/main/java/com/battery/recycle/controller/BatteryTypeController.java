@@ -1,5 +1,7 @@
 package com.battery.recycle.controller;
 
+import com.battery.recycle.util.AuthUtil;
+
 import com.battery.recycle.annotation.OssUpload;
 import com.battery.recycle.common.Result;
 import com.battery.recycle.constant.SystemConstants;
@@ -7,8 +9,7 @@ import com.battery.recycle.entity.BatteryType;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.service.BatteryTypeService;
 import com.battery.recycle.service.FileUploadService;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,10 +22,10 @@ import java.util.List;
 @RequestMapping("/battery-type")
 public class BatteryTypeController {
 
-    @Autowired
+    @Resource
     private BatteryTypeService batteryTypeService;
 
-    @Autowired
+    @Resource
     private FileUploadService fileUploadService;
 
     /**
@@ -58,8 +59,8 @@ public class BatteryTypeController {
      * 添加电池种类（仅管理员）
      */
     @PostMapping
-    public Result<Void> add(@RequestBody BatteryType batteryType, HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<Void> add(@RequestBody BatteryType batteryType) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -71,8 +72,8 @@ public class BatteryTypeController {
      * 更新电池种类（仅管理员）
      */
     @PutMapping
-    public Result<Void> update(@RequestBody BatteryType batteryType, HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<Void> update(@RequestBody BatteryType batteryType) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -84,8 +85,8 @@ public class BatteryTypeController {
      * 删除电池种类（仅管理员）
      */
     @DeleteMapping("/{id}")
-    public Result<Void> deleteById(@PathVariable Long id, HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<Void> deleteById(@PathVariable Long id) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }
@@ -99,8 +100,8 @@ public class BatteryTypeController {
     @PostMapping("/upload-icon")
     @OssUpload(path = "icon/", allowedTypes = { "image/jpeg", "image/png", "image/jpg", "image/gif" }, maxSize = 2
             * 1024 * 1024)
-    public Result<String> uploadIcon(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
+    public Result<String> uploadIcon(@RequestParam("file") MultipartFile file) {
+        Integer role = AuthUtil.getRole();
         if (!role.equals(SystemConstants.ROLE_ADMIN)) {
             throw new BusinessException(SystemConstants.ADMIN_ONLY);
         }

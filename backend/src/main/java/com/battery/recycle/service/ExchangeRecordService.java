@@ -1,10 +1,12 @@
 package com.battery.recycle.service;
 
+import jakarta.annotation.Resource;
+
+import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.ExchangeProduct;
 import com.battery.recycle.entity.ExchangeRecord;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mapper.ExchangeRecordMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,14 +18,17 @@ import java.util.List;
 @Service
 public class ExchangeRecordService {
 
-    @Autowired
+    @Resource
     private ExchangeRecordMapper exchangeRecordMapper;
 
-    @Autowired
+    @Resource
     private ExchangeProductService exchangeProductService;
 
-    @Autowired
+    @Resource
     private UserPointsService userPointsService;
+
+    @Resource
+    private UserSeckillCouponService userSeckillCouponService;
 
     /**
      * 根据ID查询记录
@@ -70,6 +75,11 @@ public class ExchangeRecordService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void createExchange(ExchangeRecord record) {
+        // 默认兑换数量为1，避免前端漏传数量导致空指针
+        if (record.getQuantity() == null || record.getQuantity() < 1) {
+            record.setQuantity(1);
+        }
+
         // 查询商品信息
         ExchangeProduct product = exchangeProductService.getById(record.getProductId());
 
@@ -81,6 +91,12 @@ public class ExchangeRecordService {
         // 检查库存
         if (product.getStock() < record.getQuantity()) {
             throw new BusinessException("库存不足");
+        }
+
+        // 秒杀券兑换走独立链路：只扣商品库存，不再扣商品所需积分
+        if (SystemConstants.EXCHANGE_TYPE_SECKILL_COUPON.equals(record.getExchangeType()) || record.getCouponId() != null) {
+            createExchangeByCoupon(record, product);
+            return;
         }
 
         // 计算所需积分
@@ -102,7 +118,31 @@ public class ExchangeRecordService {
         record.setProductName(product.getProductName());
         record.setPointsUsed(totalPoints);
         record.setExchangeStatus(0); // 待发货
+        record.setExchangeType(SystemConstants.EXCHANGE_TYPE_POINTS);
         exchangeRecordMapper.insert(record);
+    }
+
+    /**
+     * 使用秒杀券兑换商品
+     */
+    private void createExchangeByCoupon(ExchangeRecord record, ExchangeProduct product) {
+        if (record.getCouponId() == null) {
+            throw new BusinessException(SystemConstants.SECKILL_COUPON_NOT_FOUND);
+        }
+        record.setQuantity(1);
+        userSeckillCouponService.validateCouponForExchange(record.getCouponId(), record.getUserId());
+
+        boolean success = exchangeProductService.updateStock(product.getId(), 1);
+        if (!success) {
+            throw new BusinessException("库存不足");
+        }
+
+        record.setProductName(product.getProductName());
+        record.setPointsUsed(0);
+        record.setExchangeStatus(0);
+        record.setExchangeType(SystemConstants.EXCHANGE_TYPE_SECKILL_COUPON);
+        exchangeRecordMapper.insert(record);
+        userSeckillCouponService.markUsed(record.getCouponId(), product.getId(), record.getId());
     }
 
     /**
