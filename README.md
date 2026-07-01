@@ -217,6 +217,7 @@ CREATE DATABASE battery_recycle_system_1 DEFAULT CHARACTER SET utf8mb4;
 mysql -uroot -p battery_recycle_system_1 < battery_recycle_system_1.sql
 ```
 
+可以使用Navicat，DataGrip等数据库管理工具一键导入
 ### 3. 修改后端配置
 
 配置文件位置：
