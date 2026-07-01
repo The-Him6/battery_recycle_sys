@@ -233,6 +233,8 @@ backend/src/main/resources/application.yml
 - RabbitMQ 地址、账号、密码、虚拟主机
 - OSS 配置
 
+- OSS不用也可以将图片保存在本地
+
 建议使用环境变量覆盖配置，避免把本地密码提交到仓库。
 
 示例：
