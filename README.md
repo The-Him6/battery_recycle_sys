@@ -6,7 +6,7 @@
 
 后端：
 
-- Jdk 17
+- Java 17
 - Spring Boot 3.2.5
 - MyBatis
 - MySQL
