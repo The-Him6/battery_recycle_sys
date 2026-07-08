@@ -1,7 +1,6 @@
 package com.battery.recycle.mapper;
 
 import com.battery.recycle.entity.RecycleDetail;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.List;
 /**
  * 回收明细Mapper接口
  */
-@Mapper
 public interface RecycleDetailMapper {
     
     /**
