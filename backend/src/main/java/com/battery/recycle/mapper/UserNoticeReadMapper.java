@@ -1,13 +1,11 @@
 package com.battery.recycle.mapper;
 
 import com.battery.recycle.entity.UserNoticeRead;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
  * 用户公告已读Mapper接口
  */
-@Mapper
 public interface UserNoticeReadMapper {
 
     /**

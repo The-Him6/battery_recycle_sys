@@ -12,9 +12,9 @@ spring:
   # Redis配置：用于登录态、缓存和秒杀库存预扣
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
+      host: ${REDIS_HOST:192.168.100.128}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
+      password: ${REDIS_PASSWORD:123456}
       database: ${REDIS_DATABASE:0}
       timeout: 3000ms
       lettuce:
@@ -26,11 +26,11 @@ spring:
 
   # RabbitMQ配置：用于秒杀成功后的异步发券
   rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
+    host: ${RABBITMQ_HOST:192.168.100.128}
     port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME:guest}
-    password: ${RABBITMQ_PASSWORD:guest}
-    virtual-host: ${RABBITMQ_VIRTUAL_HOST:/}
+    username: ${RABBITMQ_USERNAME:thehim}
+    password: ${RABBITMQ_PASSWORD:123}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST:/thehim}
     publisher-confirm-type: correlated
     publisher-returns: true
     template:

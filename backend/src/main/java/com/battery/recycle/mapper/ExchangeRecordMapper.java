@@ -1,7 +1,6 @@
 package com.battery.recycle.mapper;
 
 import com.battery.recycle.entity.ExchangeRecord;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.List;
 /**
  * 兑换记录Mapper接口
  */
-@Mapper
 public interface ExchangeRecordMapper {
 
     /**

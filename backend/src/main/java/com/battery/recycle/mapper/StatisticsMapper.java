@@ -1,7 +1,6 @@
 package com.battery.recycle.mapper;
 
 import com.battery.recycle.vo.DashboardOverviewVO;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.Map;
 /**
  * 统计Mapper接口
  */
-@Mapper
 public interface StatisticsMapper {
 
     /**
