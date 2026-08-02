@@ -1,4 +1,4 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.SystemNotice;
@@ -6,6 +6,7 @@ import com.battery.recycle.entity.UserNoticeRead;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mapper.SystemNoticeMapper;
 import com.battery.recycle.mapper.UserNoticeReadMapper;
+import com.battery.recycle.service.ISystemNoticeService;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
@@ -14,8 +15,8 @@ import java.util.List;
 /**
  * 系统弹窗公告服务类
  */
-@Service
-public class SystemNoticeService {
+@Service("systemNoticeService")
+public class SystemNoticeServiceImpl implements ISystemNoticeService {
 
     @Resource
     private SystemNoticeMapper systemNoticeMapper;

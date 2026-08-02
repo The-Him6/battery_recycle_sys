@@ -5,7 +5,7 @@ import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.dto.ForgotPasswordDTO;
 import com.battery.recycle.dto.LoginDTO;
 import com.battery.recycle.dto.RegisterDTO;
-import com.battery.recycle.service.AuthService;
+import com.battery.recycle.service.IAuthService;
 import com.battery.recycle.util.AuthUtil;
 import com.battery.recycle.vo.LoginVO;
 import jakarta.annotation.Resource;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     
     @Resource
-    private AuthService authService;
+    private IAuthService authService;
     
     /**
      * 用户注册

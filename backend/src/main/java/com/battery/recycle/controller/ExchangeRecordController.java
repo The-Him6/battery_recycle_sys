@@ -7,8 +7,8 @@ import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.ExchangeRecord;
 import com.battery.recycle.entity.UserPoints;
 import com.battery.recycle.exception.BusinessException;
-import com.battery.recycle.service.ExchangeRecordService;
-import com.battery.recycle.service.UserPointsService;
+import com.battery.recycle.service.IExchangeRecordService;
+import com.battery.recycle.service.IUserPointsService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +24,10 @@ import java.util.Map;
 public class ExchangeRecordController {
 
     @Resource
-    private ExchangeRecordService exchangeRecordService;
+    private IExchangeRecordService exchangeRecordService;
 
     @Resource
-    private UserPointsService userPointsService;
+    private IUserPointsService userPointsService;
 
     /**
      * 获取用户积分信息

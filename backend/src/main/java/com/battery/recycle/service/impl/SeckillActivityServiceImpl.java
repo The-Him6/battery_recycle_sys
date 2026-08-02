@@ -1,4 +1,4 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import com.battery.recycle.constant.RedisConstants;
 import com.battery.recycle.constant.SystemConstants;
@@ -8,6 +8,8 @@ import com.battery.recycle.entity.UserSeckillCoupon;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mapper.SeckillActivityMapper;
 import com.battery.recycle.mapper.UserSeckillCouponMapper;
+import com.battery.recycle.service.ISeckillActivityService;
+import com.battery.recycle.service.IUserPointsService;
 import com.battery.recycle.mq.producer.SeckillCouponProducer;
 import com.battery.recycle.util.CacheClient;
 import org.springframework.core.io.ClassPathResource;
@@ -25,8 +27,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * 秒杀活动服务类
  */
-@Service
-public class SeckillActivityService {
+@Service("seckillActivityService")
+public class SeckillActivityServiceImpl implements ISeckillActivityService {
 
     @Resource
     private SeckillActivityMapper seckillActivityMapper;
@@ -35,7 +37,7 @@ public class SeckillActivityService {
     private UserSeckillCouponMapper userSeckillCouponMapper;
 
     @Resource
-    private UserPointsService userPointsService;
+    private IUserPointsService userPointsService;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;

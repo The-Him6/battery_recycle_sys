@@ -12,7 +12,7 @@ import com.battery.recycle.dto.CreateOrderDTO;
 import com.battery.recycle.entity.RecycleDetail;
 import com.battery.recycle.entity.RecycleOrder;
 import com.battery.recycle.exception.BusinessException;
-import com.battery.recycle.service.RecycleOrderService;
+import com.battery.recycle.service.IRecycleOrderService;
 import com.battery.recycle.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +30,7 @@ import java.util.Map;
 public class RecycleOrderController {
 
     @Resource
-    private RecycleOrderService recycleOrderService;
+    private IRecycleOrderService recycleOrderService;
 
     /**
      * 根据ID查询订单

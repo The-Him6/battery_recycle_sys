@@ -12,8 +12,8 @@ import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.dto.ChangePasswordDTO;
 import com.battery.recycle.entity.User;
 import com.battery.recycle.exception.BusinessException;
-import com.battery.recycle.service.FileUploadService;
-import com.battery.recycle.service.UserService;
+import com.battery.recycle.service.IFileUploadService;
+import com.battery.recycle.service.IUserService;
 import com.battery.recycle.vo.UserVO;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,10 +28,10 @@ import java.util.List;
 public class UserController {
 
     @Resource
-    private UserService userService;
+    private IUserService userService;
 
     @Resource
-    private FileUploadService fileUploadService;
+    private IFileUploadService fileUploadService;
 
     /**
      * 获取当前用户信息

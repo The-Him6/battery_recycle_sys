@@ -4,7 +4,7 @@ import jakarta.annotation.Resource;
 
 import com.battery.recycle.common.Result;
 import com.battery.recycle.entity.SystemNotice;
-import com.battery.recycle.service.SystemNoticeService;
+import com.battery.recycle.service.ISystemNoticeService;
 import com.battery.recycle.util.AuthUtil;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +18,7 @@ import java.util.List;
 public class SystemNoticeController {
 
     @Resource
-    private SystemNoticeService systemNoticeService;
+    private ISystemNoticeService systemNoticeService;
 
     /**
      * 管理员查询全部公告

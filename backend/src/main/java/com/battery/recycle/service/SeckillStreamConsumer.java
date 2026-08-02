@@ -1,6 +1,7 @@
 package com.battery.recycle.service;
 
 import com.battery.recycle.constant.RedisConstants;
+import com.battery.recycle.service.ISeckillActivityService;
 import com.battery.recycle.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -41,7 +42,7 @@ public class SeckillStreamConsumer {
     private RedissonClient redissonClient;
 
     @Resource
-    private SeckillActivityService seckillActivityService;
+    private ISeckillActivityService seckillActivityService;
 
     /**
      * 单线程消费秒杀消息，避免本地并发过高，跨进程并发由Redisson用户锁处理

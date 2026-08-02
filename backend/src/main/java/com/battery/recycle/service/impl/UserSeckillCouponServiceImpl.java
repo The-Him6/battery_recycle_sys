@@ -1,9 +1,10 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.UserSeckillCoupon;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mapper.UserSeckillCouponMapper;
+import com.battery.recycle.service.IUserSeckillCouponService;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
@@ -13,8 +14,8 @@ import java.util.List;
 /**
  * 用户秒杀券服务类
  */
-@Service
-public class UserSeckillCouponService {
+@Service("userSeckillCouponService")
+public class UserSeckillCouponServiceImpl implements IUserSeckillCouponService {
 
     @Resource
     private UserSeckillCouponMapper userSeckillCouponMapper;

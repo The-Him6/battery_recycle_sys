@@ -7,8 +7,8 @@ import com.battery.recycle.common.Result;
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.ExchangeProduct;
 import com.battery.recycle.exception.BusinessException;
-import com.battery.recycle.service.ExchangeProductService;
-import com.battery.recycle.service.FileUploadService;
+import com.battery.recycle.service.IExchangeProductService;
+import com.battery.recycle.service.IFileUploadService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,10 +23,10 @@ import java.util.List;
 public class ExchangeProductController {
 
     @Resource
-    private ExchangeProductService exchangeProductService;
+    private IExchangeProductService exchangeProductService;
 
     @Resource
-    private FileUploadService fileUploadService;
+    private IFileUploadService fileUploadService;
 
     /**
      * 根据ID查询商品

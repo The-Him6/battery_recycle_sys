@@ -1,17 +1,18 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import jakarta.annotation.Resource;
 
 import com.battery.recycle.entity.UserPoints;
 import com.battery.recycle.mapper.UserPointsMapper;
+import com.battery.recycle.service.IUserPointsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 用户积分服务类
  */
-@Service
-public class UserPointsService {
+@Service("userPointsService")
+public class UserPointsServiceImpl implements IUserPointsService {
 
     @Resource
     private UserPointsMapper userPointsMapper;

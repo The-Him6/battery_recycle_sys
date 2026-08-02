@@ -1,8 +1,9 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import jakarta.annotation.Resource;
 
 import com.battery.recycle.util.AliyunOssUtil;
+import com.battery.recycle.service.IFileUploadService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,9 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
  * 文件上传服务
  * 统一管理所有文件上传操作
  */
-@Service
+@Service("fileUploadService")
 @Slf4j
-public class FileUploadService {
+public class FileUploadServiceImpl implements IFileUploadService {
 
     @Resource
     private AliyunOssUtil aliyunOssUtil;
