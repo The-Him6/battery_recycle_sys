@@ -4,7 +4,7 @@ import com.battery.recycle.constant.RabbitMqConstants;
 import com.battery.recycle.constant.RedisConstants;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mq.message.SeckillCouponMessage;
-import com.battery.recycle.service.SeckillActivityService;
+import com.battery.recycle.service.ISeckillActivityService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -36,7 +36,7 @@ public class SeckillCouponConsumer {
     private RabbitTemplate rabbitTemplate;
 
     @Resource
-    private SeckillActivityService seckillActivityService;
+    private ISeckillActivityService seckillActivityService;
 
     /**
      * 消费秒杀发券消息，成功后手动ACK，系统异常进入重试或死信。

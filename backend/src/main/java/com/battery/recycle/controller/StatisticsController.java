@@ -6,7 +6,7 @@ import jakarta.annotation.Resource;
 
 import com.battery.recycle.common.Result;
 import com.battery.recycle.constant.SystemConstants;
-import com.battery.recycle.service.StatisticsService;
+import com.battery.recycle.service.IStatisticsService;
 import com.battery.recycle.vo.DashboardOverviewVO;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +22,7 @@ import java.util.Map;
 public class StatisticsController {
 
     @Resource
-    private StatisticsService statisticsService;
+    private IStatisticsService statisticsService;
 
     /**
      * 获取管理员首页概览数字。

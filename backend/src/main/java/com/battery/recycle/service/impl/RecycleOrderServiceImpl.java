@@ -1,4 +1,4 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import jakarta.annotation.Resource;
 
@@ -14,6 +14,8 @@ import com.battery.recycle.mapper.BatteryTypeMapper;
 import com.battery.recycle.mapper.RecycleDetailMapper;
 import com.battery.recycle.mapper.RecycleOrderMapper;
 import com.battery.recycle.mapper.UserMapper;
+import com.battery.recycle.service.IRecycleOrderService;
+import com.battery.recycle.service.IUserPointsService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -26,8 +28,8 @@ import java.util.List;
 /**
  * 回收订单服务类
  */
-@Service
-public class RecycleOrderService {
+@Service("recycleOrderService")
+public class RecycleOrderServiceImpl implements IRecycleOrderService {
 
     @Resource
     private RecycleOrderMapper recycleOrderMapper;
@@ -42,7 +44,7 @@ public class RecycleOrderService {
     private UserMapper userMapper;
 
     @Resource
-    private UserPointsService userPointsService;
+    private IUserPointsService userPointsService;
 
     /**
      * 根据ID查询订单

@@ -1,4 +1,4 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import jakarta.annotation.Resource;
 
@@ -6,6 +6,7 @@ import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.BatteryType;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mapper.BatteryTypeMapper;
+import com.battery.recycle.service.IBatteryTypeService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,8 +14,8 @@ import java.util.List;
 /**
  * 电池种类服务类
  */
-@Service
-public class BatteryTypeService {
+@Service("batteryTypeService")
+public class BatteryTypeServiceImpl implements IBatteryTypeService {
     
     @Resource
     private BatteryTypeMapper batteryTypeMapper;

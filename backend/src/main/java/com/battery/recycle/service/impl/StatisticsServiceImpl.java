@@ -1,8 +1,9 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import jakarta.annotation.Resource;
 
 import com.battery.recycle.mapper.StatisticsMapper;
+import com.battery.recycle.service.IStatisticsService;
 import com.battery.recycle.vo.DashboardOverviewVO;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +13,8 @@ import java.util.Map;
 /**
  * 统计服务类
  */
-@Service
-public class StatisticsService {
+@Service("statisticsService")
+public class StatisticsServiceImpl implements IStatisticsService {
 
     @Resource
     private StatisticsMapper statisticsMapper;

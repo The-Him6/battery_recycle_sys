@@ -1,4 +1,4 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.dto.ForgotPasswordDTO;
@@ -7,6 +7,8 @@ import com.battery.recycle.dto.RegisterDTO;
 import com.battery.recycle.entity.User;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mapper.UserMapper;
+import com.battery.recycle.service.IAuthService;
+import com.battery.recycle.service.ILoginStateService;
 import com.battery.recycle.util.JwtUtil;
 import com.battery.recycle.util.Md5Util;
 import com.battery.recycle.vo.LoginVO;
@@ -20,8 +22,8 @@ import java.util.UUID;
 /**
  * 认证服务类
  */
-@Service
-public class AuthService {
+@Service("authService")
+public class AuthServiceImpl implements IAuthService {
     
     @Resource
     private UserMapper userMapper;
@@ -30,7 +32,7 @@ public class AuthService {
     private JwtUtil jwtUtil;
 
     @Resource
-    private LoginStateService loginStateService;
+    private ILoginStateService loginStateService;
     
     /**
      * 用户注册

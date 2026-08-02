@@ -1,4 +1,4 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import jakarta.annotation.Resource;
 
@@ -9,6 +9,7 @@ import com.battery.recycle.dto.ChangePasswordDTO;
 import com.battery.recycle.entity.User;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mapper.UserMapper;
+import com.battery.recycle.service.IUserService;
 import com.battery.recycle.util.Md5Util;
 import com.battery.recycle.vo.UserVO;
 import com.github.pagehelper.PageHelper;
@@ -22,8 +23,8 @@ import java.util.List;
 /**
  * 用户服务类
  */
-@Service
-public class UserService {
+@Service("userService")
+public class UserServiceImpl implements IUserService {
 
     @Resource
     private UserMapper userMapper;

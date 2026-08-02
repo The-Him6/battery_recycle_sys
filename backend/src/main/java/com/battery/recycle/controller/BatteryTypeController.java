@@ -7,8 +7,8 @@ import com.battery.recycle.common.Result;
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.BatteryType;
 import com.battery.recycle.exception.BusinessException;
-import com.battery.recycle.service.BatteryTypeService;
-import com.battery.recycle.service.FileUploadService;
+import com.battery.recycle.service.IBatteryTypeService;
+import com.battery.recycle.service.IFileUploadService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,10 +23,10 @@ import java.util.List;
 public class BatteryTypeController {
 
     @Resource
-    private BatteryTypeService batteryTypeService;
+    private IBatteryTypeService batteryTypeService;
 
     @Resource
-    private FileUploadService fileUploadService;
+    private IFileUploadService fileUploadService;
 
     /**
      * 根据ID查询电池种类

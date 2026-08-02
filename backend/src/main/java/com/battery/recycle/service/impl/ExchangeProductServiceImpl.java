@@ -1,4 +1,4 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import jakarta.annotation.Resource;
 
@@ -7,6 +7,7 @@ import com.battery.recycle.constant.RedisConstants;
 import com.battery.recycle.entity.ExchangeProduct;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mapper.ExchangeProductMapper;
+import com.battery.recycle.service.IExchangeProductService;
 import com.battery.recycle.util.CacheClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * 兑换商品服务类
  */
-@Service
-public class ExchangeProductService {
+@Service("exchangeProductService")
+public class ExchangeProductServiceImpl implements IExchangeProductService {
 
     @Resource
     private ExchangeProductMapper exchangeProductMapper;

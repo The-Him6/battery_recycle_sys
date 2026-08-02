@@ -4,7 +4,7 @@ import jakarta.annotation.Resource;
 
 import com.battery.recycle.common.Result;
 import com.battery.recycle.entity.SeckillActivity;
-import com.battery.recycle.service.SeckillActivityService;
+import com.battery.recycle.service.ISeckillActivityService;
 import com.battery.recycle.util.AuthUtil;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +18,7 @@ import java.util.List;
 public class SeckillActivityController {
 
     @Resource
-    private SeckillActivityService seckillActivityService;
+    private ISeckillActivityService seckillActivityService;
 
     /**
      * 管理员查询全部秒杀活动

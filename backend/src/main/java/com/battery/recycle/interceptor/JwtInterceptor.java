@@ -2,7 +2,7 @@ package com.battery.recycle.interceptor;
 
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.exception.BusinessException;
-import com.battery.recycle.service.LoginStateService;
+import com.battery.recycle.service.ILoginStateService;
 import com.battery.recycle.util.JwtUtil;
 import com.battery.recycle.util.UserHolder;
 import com.battery.recycle.vo.UserContext;
@@ -22,7 +22,7 @@ public class JwtInterceptor implements HandlerInterceptor {
     private JwtUtil jwtUtil;
 
     @Resource
-    private LoginStateService loginStateService;
+    private ILoginStateService loginStateService;
     
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -70,4 +70,3 @@ public class JwtInterceptor implements HandlerInterceptor {
         UserHolder.remove();
     }
 }
-

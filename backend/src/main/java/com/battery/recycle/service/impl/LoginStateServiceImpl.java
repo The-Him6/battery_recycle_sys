@@ -1,7 +1,8 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import cn.hutool.core.util.BooleanUtil;
 import com.battery.recycle.constant.RedisConstants;
+import com.battery.recycle.service.ILoginStateService;
 import com.battery.recycle.vo.UserVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -15,8 +16,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * 登录态服务类
  */
-@Service
-public class LoginStateService {
+@Service("loginStateService")
+public class LoginStateServiceImpl implements ILoginStateService {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;

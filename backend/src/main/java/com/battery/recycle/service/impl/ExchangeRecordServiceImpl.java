@@ -1,4 +1,4 @@
-package com.battery.recycle.service;
+package com.battery.recycle.service.impl;
 
 import jakarta.annotation.Resource;
 
@@ -7,6 +7,10 @@ import com.battery.recycle.entity.ExchangeProduct;
 import com.battery.recycle.entity.ExchangeRecord;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.mapper.ExchangeRecordMapper;
+import com.battery.recycle.service.IExchangeProductService;
+import com.battery.recycle.service.IExchangeRecordService;
+import com.battery.recycle.service.IUserPointsService;
+import com.battery.recycle.service.IUserSeckillCouponService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,20 +19,20 @@ import java.util.List;
 /**
  * 兑换记录服务类
  */
-@Service
-public class ExchangeRecordService {
+@Service("exchangeRecordService")
+public class ExchangeRecordServiceImpl implements IExchangeRecordService {
 
     @Resource
     private ExchangeRecordMapper exchangeRecordMapper;
 
     @Resource
-    private ExchangeProductService exchangeProductService;
+    private IExchangeProductService exchangeProductService;
 
     @Resource
-    private UserPointsService userPointsService;
+    private IUserPointsService userPointsService;
 
     @Resource
-    private UserSeckillCouponService userSeckillCouponService;
+    private IUserSeckillCouponService userSeckillCouponService;
 
     /**
      * 根据ID查询记录
