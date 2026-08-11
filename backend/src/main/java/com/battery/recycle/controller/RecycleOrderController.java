@@ -14,6 +14,8 @@ import com.battery.recycle.entity.RecycleOrder;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.service.IRecycleOrderService;
 import com.battery.recycle.vo.OrderVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,7 @@ import java.util.Map;
 /**
  * 回收订单控制器
  */
+@Tag(name = "回收订单管理", description = "回收订单的创建、查询与状态管理")
 @RestController
 @RequestMapping("/order")
 public class RecycleOrderController {
@@ -35,6 +38,7 @@ public class RecycleOrderController {
     /**
      * 根据ID查询订单
      */
+    @Operation(summary = "根据ID查询订单", description = "普通用户只能查看自己的订单")
     @GetMapping("/{id}")
     public Result<OrderVO> getById(@PathVariable Long id) {
         Long userId = AuthUtil.getUserId();
@@ -60,6 +64,7 @@ public class RecycleOrderController {
     /**
      * 查询所有订单（管理员）
      */
+    @Operation(summary = "查询所有订单", description = "仅管理员可操作")
     @GetMapping("/list")
     public Result<List<RecycleOrder>> listAll() {
         Integer role = AuthUtil.getRole();
@@ -73,6 +78,7 @@ public class RecycleOrderController {
     /**
      * 分页查询订单列表（管理员）
      */
+    @Operation(summary = "分页查询订单列表", description = "仅管理员可操作，支持地址、日期、状态条件搜索")
     @GetMapping("/page")
     public Result<PageResult<RecycleOrder>> getOrderPage(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -107,6 +113,7 @@ public class RecycleOrderController {
     /**
      * 查询我的订单
      */
+    @Operation(summary = "查询我的订单", description = "支持地址、日期条件搜索")
     @GetMapping("/my")
     public Result<List<RecycleOrder>> listMyOrders(
             @RequestParam(required = false) String address,
@@ -130,6 +137,7 @@ public class RecycleOrderController {
     /**
      * 创建订单
      */
+    @Operation(summary = "创建订单", description = "提交电池回收上门回收订单")
     @PostMapping
     public Result<Void> createOrder(@RequestBody CreateOrderDTO dto) {
         Long userId = AuthUtil.getUserId();
@@ -157,6 +165,7 @@ public class RecycleOrderController {
     /**
      * 更新订单状态（管理员）
      */
+    @Operation(summary = "更新订单状态", description = "仅管理员可操作")
     @PutMapping("/{id}/status")
     public Result<Void> updateStatus(@PathVariable Long id, @RequestBody Map<String, Integer> params) {
         Integer role = AuthUtil.getRole();
@@ -172,6 +181,7 @@ public class RecycleOrderController {
     /**
      * 取消订单
      */
+    @Operation(summary = "取消订单", description = "用户取消自己的未开始订单")
     @PutMapping("/{id}/cancel")
     public Result<Void> cancelOrder(@PathVariable Long id) {
         Long userId = AuthUtil.getUserId();
