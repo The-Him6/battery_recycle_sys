@@ -9,6 +9,8 @@ import com.battery.recycle.entity.BatteryType;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.service.IBatteryTypeService;
 import com.battery.recycle.service.IFileUploadService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +20,7 @@ import java.util.List;
 /**
  * 电池种类控制器
  */
+@Tag(name = "电池类型管理", description = "电池类型的增删改查与图标上传")
 @RestController
 @RequestMapping("/battery-type")
 public class BatteryTypeController {
@@ -31,6 +34,7 @@ public class BatteryTypeController {
     /**
      * 根据ID查询电池种类
      */
+    @Operation(summary = "根据ID查询电池种类")
     @GetMapping("/{id}")
     public Result<BatteryType> getById(@PathVariable Long id) {
         BatteryType batteryType = batteryTypeService.getById(id);
@@ -40,6 +44,7 @@ public class BatteryTypeController {
     /**
      * 查询所有电池种类
      */
+    @Operation(summary = "查询所有电池种类")
     @GetMapping("/list")
     public Result<List<BatteryType>> listAll() {
         List<BatteryType> list = batteryTypeService.listAll();
@@ -49,6 +54,7 @@ public class BatteryTypeController {
     /**
      * 查询启用的电池种类
      */
+    @Operation(summary = "查询启用的电池种类")
     @GetMapping("/enabled")
     public Result<List<BatteryType>> listEnabled() {
         List<BatteryType> list = batteryTypeService.listEnabled();
@@ -58,6 +64,7 @@ public class BatteryTypeController {
     /**
      * 添加电池种类（仅管理员）
      */
+    @Operation(summary = "添加电池种类", description = "仅管理员可操作")
     @PostMapping
     public Result<Void> add(@RequestBody BatteryType batteryType) {
         Integer role = AuthUtil.getRole();
@@ -71,6 +78,7 @@ public class BatteryTypeController {
     /**
      * 更新电池种类（仅管理员）
      */
+    @Operation(summary = "更新电池种类", description = "仅管理员可操作")
     @PutMapping
     public Result<Void> update(@RequestBody BatteryType batteryType) {
         Integer role = AuthUtil.getRole();
@@ -84,6 +92,7 @@ public class BatteryTypeController {
     /**
      * 删除电池种类（仅管理员）
      */
+    @Operation(summary = "删除电池种类", description = "仅管理员可操作")
     @DeleteMapping("/{id}")
     public Result<Void> deleteById(@PathVariable Long id) {
         Integer role = AuthUtil.getRole();
@@ -97,6 +106,7 @@ public class BatteryTypeController {
     /**
      * 上传电池图标（仅管理员）
      */
+    @Operation(summary = "上传电池图标", description = "仅管理员可操作，支持 jpeg/png/jpg/gif，最大 2MB")
     @PostMapping("/upload-icon")
     @OssUpload(path = "icon/", allowedTypes = { "image/jpeg", "image/png", "image/jpg", "image/gif" }, maxSize = 2
             * 1024 * 1024)

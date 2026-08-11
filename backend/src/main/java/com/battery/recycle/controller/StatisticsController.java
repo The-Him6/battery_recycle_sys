@@ -8,6 +8,8 @@ import com.battery.recycle.common.Result;
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.service.IStatisticsService;
 import com.battery.recycle.vo.DashboardOverviewVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import java.util.Map;
 /**
  * 统计控制器
  */
+@Tag(name = "数据统计", description = "管理员数据概览与回收数据统计图表")
 @RestController
 @RequestMapping("/statistics")
 public class StatisticsController {
@@ -27,6 +30,7 @@ public class StatisticsController {
     /**
      * 获取管理员首页概览数字。
      */
+    @Operation(summary = "获取管理员首页概览数字", description = "仅管理员可操作")
     @GetMapping("/dashboard")
     public Result<DashboardOverviewVO> getDashboardOverview() {
         AuthUtil.requireAdmin();
@@ -37,6 +41,7 @@ public class StatisticsController {
     /**
      * 统计每种电池的回收数量
      */
+    @Operation(summary = "统计每种电池的回收数量")
     @GetMapping("/battery-type")
     public Result<List<Map<String, Object>>> countByBatteryType() {
         List<Map<String, Object>> data = statisticsService.countByBatteryType();
@@ -46,6 +51,7 @@ public class StatisticsController {
     /**
      * 统计每日回收数量
      */
+    @Operation(summary = "统计每日回收数量", description = "days 表示最近天数，默认统计全部")
     @GetMapping("/date")
     public Result<List<Map<String, Object>>> countByDate(@RequestParam(required = false) Integer days) {
         List<Map<String, Object>> data = statisticsService.countByDate(days);
@@ -55,6 +61,7 @@ public class StatisticsController {
     /**
      * 按月统计回收数量（近12个月）
      */
+    @Operation(summary = "按月统计回收数量", description = "近 12 个月")
     @GetMapping("/monthly")
     public Result<List<Map<String, Object>>> countByMonth() {
         List<Map<String, Object>> data = statisticsService.countByMonth();
@@ -64,6 +71,7 @@ public class StatisticsController {
     /**
      * 按年统计回收数量（全部年份）
      */
+    @Operation(summary = "按年统计回收数量")
     @GetMapping("/yearly")
     public Result<List<Map<String, Object>>> countByYear() {
         List<Map<String, Object>> data = statisticsService.countByYear();
@@ -73,6 +81,7 @@ public class StatisticsController {
     /**
      * 统计订单状态分布
      */
+    @Operation(summary = "统计订单状态分布")
     @GetMapping("/order-status")
     public Result<List<Map<String, Object>>> countByOrderStatus() {
         List<Map<String, Object>> data = statisticsService.countByOrderStatus();
@@ -82,6 +91,7 @@ public class StatisticsController {
     /**
      * 统计地区回收排行
      */
+    @Operation(summary = "统计地区回收排行", description = "limit 表示返回排行条数，默认全部")
     @GetMapping("/city-rank")
     public Result<List<Map<String, Object>>> countByCity(@RequestParam(required = false) Integer limit) {
         List<Map<String, Object>> data = statisticsService.countByCity(limit);
@@ -91,6 +101,7 @@ public class StatisticsController {
     /**
      * 获取综合统计数据
      */
+    @Operation(summary = "获取综合统计数据", description = "聚合电池类型、近7天、订单状态、地区排行统计")
     @GetMapping("/overview")
     public Result<Map<String, Object>> getOverview() {
         Map<String, Object> overview = new HashMap<>();

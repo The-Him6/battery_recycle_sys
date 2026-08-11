@@ -28,7 +28,13 @@ public class WebConfig implements WebMvcConfigurer {
                         "/auth/login",
                         "/auth/register",
                         "/auth/forgot-password",
-                        "/error");
+                        "/error",
+                        "/doc.html",
+                        "/webjars/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                        "/favicon.ico");
     }
 
     /**

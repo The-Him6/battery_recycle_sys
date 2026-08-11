@@ -9,6 +9,8 @@ import com.battery.recycle.entity.UserPoints;
 import com.battery.recycle.exception.BusinessException;
 import com.battery.recycle.service.IExchangeRecordService;
 import com.battery.recycle.service.IUserPointsService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,7 @@ import java.util.Map;
 /**
  * 兑换记录控制器
  */
+@Tag(name = "兑换记录管理", description = "积分兑换记录查询与用户积分信息")
 @RestController
 @RequestMapping("/exchange-record")
 public class ExchangeRecordController {
@@ -32,6 +35,7 @@ public class ExchangeRecordController {
     /**
      * 获取用户积分信息
      */
+    @Operation(summary = "获取用户积分信息")
     @GetMapping("/points")
     public Result<UserPoints> getUserPoints() {
         Long userId = AuthUtil.getUserId();
@@ -42,6 +46,7 @@ public class ExchangeRecordController {
     /**
      * 根据ID查询记录
      */
+    @Operation(summary = "根据ID查询记录", description = "普通用户只能查看自己的记录")
     @GetMapping("/{id}")
     public Result<ExchangeRecord> getById(@PathVariable Long id) {
         Long userId = AuthUtil.getUserId();
@@ -60,6 +65,7 @@ public class ExchangeRecordController {
     /**
      * 查询所有记录（管理员）
      */
+    @Operation(summary = "查询所有记录", description = "仅管理员可操作")
     @GetMapping("/list")
     public Result<List<ExchangeRecord>> listAll() {
         Integer role = AuthUtil.getRole();
@@ -73,6 +79,7 @@ public class ExchangeRecordController {
     /**
      * 查询我的兑换记录
      */
+    @Operation(summary = "查询我的兑换记录")
     @GetMapping("/my")
     public Result<List<ExchangeRecord>> listMyRecords() {
         Long userId = AuthUtil.getUserId();
@@ -83,6 +90,7 @@ public class ExchangeRecordController {
     /**
      * 分页查询记录（管理员）
      */
+    @Operation(summary = "分页查询记录", description = "仅管理员可操作")
     @GetMapping("/page")
     public Result<Map<String, Object>> listByPage(
             @RequestParam(defaultValue = "1") Integer page,
@@ -107,6 +115,7 @@ public class ExchangeRecordController {
     /**
      * 创建兑换记录
      */
+    @Operation(summary = "创建兑换记录", description = "使用当前登录用户积分进行兑换")
     @PostMapping
     public Result<Void> createExchange(@RequestBody ExchangeRecord record) {
         Long userId = AuthUtil.getUserId();
@@ -118,6 +127,7 @@ public class ExchangeRecordController {
     /**
      * 更新兑换状态（管理员）
      */
+    @Operation(summary = "更新兑换状态", description = "仅管理员可操作")
     @PutMapping("/{id}/status")
     public Result<Void> updateStatus(@PathVariable Long id, @RequestBody Map<String, Integer> params) {
         Integer role = AuthUtil.getRole();
