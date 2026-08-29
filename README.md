@@ -138,3 +138,7 @@ npm run dev
 
 - 管理员：`admin` / `123456`（数据库脚本已预设）
 - 普通用户：注册页面自行注册
+
+## 微服务版本地址
+
+[github.com/The-Him6/cloud_battry_recycle_sys](https://github.com/The-Him6/cloud_battry_recycle_sys)
