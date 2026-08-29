@@ -45,7 +45,7 @@
               <el-input
                 v-model="registerForm.password"
                 type="password"
-                placeholder="请输入密码"
+                placeholder="请输入密码（6-20位，仅限大小写字母、数字和 . !）"
                 size="large"
                 :prefix-icon="Lock"
                 show-password
@@ -139,7 +139,8 @@ const rules = {
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在6-20个字符', trigger: 'blur' }
+    { min: 6, max: 20, message: '密码长度在6-20个字符', trigger: 'blur' },
+    { pattern: /^[A-Za-z0-9.!]{6,20}$/, message: '密码只能包含大小写字母、数字和 . !，长度6-20位', trigger: 'blur' }
   ],
   confirmPassword: [
     { required: true, message: '请确认密码', trigger: 'blur' },

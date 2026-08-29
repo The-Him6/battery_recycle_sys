@@ -11,6 +11,8 @@ public class SystemConstants {
     public static final String USER_LOGOUT_SUCCESS = "退出登录成功";
     public static final String USER_UPDATE_SUCCESS = "更新成功";
     public static final String USER_DELETE_SUCCESS = "删除成功";
+    public static final String USER_ADD_SUCCESS = "添加用户成功";
+    public static final String USER_PASSWORD_CHANGE_SUCCESS = "密码修改成功";
     public static final String USER_PASSWORD_RESET_SUCCESS = "您的密码已被重置为123456";
     
     public static final String USER_ALREADY_EXISTS = "该用户名已注册";
@@ -19,9 +21,11 @@ public class SystemConstants {
     public static final String USER_OLD_PASSWORD_ERROR = "原密码错误";
     public static final String USER_NEW_PASSWORD_SAME_AS_OLD = "新密码不能与原密码相同";
     public static final String USER_PHONE_MISMATCH = "手机号确认错误";
+    public static final String USER_CANNOT_DELETE_SELF = "不能删除自己的账号";
     public static final String USER_DISABLED = "该账号已被禁用";
     public static final String USER_USERNAME_EMPTY = "用户名不能为空";
     public static final String USER_PASSWORD_EMPTY = "密码不能为空";
+    public static final String USER_PASSWORD_FORMAT_ERROR = "密码只能包含大小写字母、数字和 . !，长度6-20位";
     public static final String USER_PHONE_EMPTY = "手机号不能为空";
     
     // ==================== 权限相关 ====================
@@ -43,6 +47,8 @@ public class SystemConstants {
     public static final String ORDER_CANCEL_SUCCESS = "取消订单成功";
     public static final String ORDER_NOT_FOUND = "订单不存在";
     public static final String ORDER_CANNOT_CANCEL = "订单状态不允许取消";
+    public static final String ORDER_STATUS_ILLEGAL = "订单状态不合法";
+    public static final String POINTS_GRANT_FAILED = "积分发放失败";
     
     // ==================== 文件上传相关 ====================
     public static final String FILE_UPLOAD_SUCCESS = "文件上传成功";
@@ -71,10 +77,32 @@ public class SystemConstants {
     public static final String SECKILL_COUPON_USED = "秒杀券已使用";
     public static final String SECKILL_POINTS_NOT_ENOUGH = "积分不足，无法秒杀";
     public static final String SECKILL_MQ_SEND_FAILED = "秒杀请求繁忙，请稍后再试";
+    public static final String SECKILL_ADD_SUCCESS = "创建秒杀活动成功";
+    public static final String SECKILL_UPDATE_SUCCESS = "更新秒杀活动成功";
+    public static final String SECKILL_ONLINE_SUCCESS = "活动已上架并预热库存";
+    public static final String SECKILL_OFFLINE_SUCCESS = "活动已下架";
+    public static final String SECKILL_PREHEAT_SUCCESS = "预热成功";
+    public static final String SECKILL_GRAB_SUCCESS = "抢券成功，优惠券将在生效时间后可用";
+    public static final String SECKILL_END_AFTER_START = "秒杀结束时间必须晚于开始时间";
+    public static final String SECKILL_COUPON_EXPIRE_AFTER_EFFECTIVE = "优惠券过期时间必须晚于生效时间";
 
     // ==================== 系统公告相关 ====================
     public static final String NOTICE_NOT_FOUND = "系统公告不存在";
+    public static final String NOTICE_ADD_SUCCESS = "新增公告成功";
+    public static final String NOTICE_UPDATE_SUCCESS = "更新公告成功";
+    public static final String NOTICE_READ_SUCCESS = "已读成功";
     
+    // ==================== 兑换相关 ====================
+    public static final String EXCHANGE_PRODUCT_NOT_FOUND = "商品不存在";
+    public static final String EXCHANGE_PRODUCT_OFFLINE = "该商品已下架";
+    public static final String EXCHANGE_RECORD_NOT_FOUND = "兑换记录不存在";
+    public static final String EXCHANGE_STOCK_NOT_ENOUGH = "库存不足";
+    public static final String EXCHANGE_POINTS_NOT_ENOUGH = "积分不足";
+    public static final String EXCHANGE_PRODUCT_ADD_SUCCESS = "添加商品成功";
+    public static final String EXCHANGE_PRODUCT_UPDATE_SUCCESS = "更新商品成功";
+    public static final String EXCHANGE_PRODUCT_DELETE_SUCCESS = "删除商品成功";
+    public static final String EXCHANGE_SUCCESS = "兑换成功";
+
     // ==================== 通用提示 ====================
     public static final String OPERATION_SUCCESS = "操作成功";
     public static final String OPERATION_FAILED = "操作失败";

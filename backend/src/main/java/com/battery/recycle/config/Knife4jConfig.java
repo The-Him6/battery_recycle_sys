@@ -24,8 +24,8 @@ public class Knife4jConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("智能化废电池回收系统 API 文档")
-                        .description("废电池回收与积分兑换平台后端接口文档，支持在线接口测试。\n\n"
+                        .title("绿源回收积分平台 API 文档")
+                        .description("绿源回收积分平台后端接口文档，支持在线接口测试。\n\n"
                                 + "接口大多需要登录，请在右上角【文档管理-调试管理】配置全局参数后调用：\n"
                                 + "请求头名称 Authorization，请求值 Bearer 登录返回的 token。")
                         .version("1.0.0")

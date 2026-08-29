@@ -12,9 +12,7 @@ yarn-error.log
 .vscode/
 *.iml
 target/
-uploads/
 backend/target/
-backend/uploads/
 frontend/node_modules/
 frontend/dist/
 frontend/.vscode/

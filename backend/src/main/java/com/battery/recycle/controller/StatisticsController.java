@@ -2,7 +2,7 @@ package com.battery.recycle.controller;
 
 import com.battery.recycle.util.AuthUtil;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.battery.recycle.common.Result;
 import com.battery.recycle.constant.SystemConstants;
@@ -22,10 +22,10 @@ import java.util.Map;
 @Tag(name = "数据统计", description = "管理员数据概览与回收数据统计图表")
 @RestController
 @RequestMapping("/statistics")
+@RequiredArgsConstructor
 public class StatisticsController {
 
-    @Resource
-    private IStatisticsService statisticsService;
+        private final IStatisticsService statisticsService;
 
     /**
      * 获取管理员首页概览数字。
@@ -44,6 +44,7 @@ public class StatisticsController {
     @Operation(summary = "统计每种电池的回收数量")
     @GetMapping("/battery-type")
     public Result<List<Map<String, Object>>> countByBatteryType() {
+        AuthUtil.requireAdmin();
         List<Map<String, Object>> data = statisticsService.countByBatteryType();
         return Result.success(SystemConstants.STATISTICS_QUERY_SUCCESS, data);
     }
@@ -54,6 +55,7 @@ public class StatisticsController {
     @Operation(summary = "统计每日回收数量", description = "days 表示最近天数，默认统计全部")
     @GetMapping("/date")
     public Result<List<Map<String, Object>>> countByDate(@RequestParam(required = false) Integer days) {
+        AuthUtil.requireAdmin();
         List<Map<String, Object>> data = statisticsService.countByDate(days);
         return Result.success(SystemConstants.STATISTICS_QUERY_SUCCESS, data);
     }
@@ -64,6 +66,7 @@ public class StatisticsController {
     @Operation(summary = "按月统计回收数量", description = "近 12 个月")
     @GetMapping("/monthly")
     public Result<List<Map<String, Object>>> countByMonth() {
+        AuthUtil.requireAdmin();
         List<Map<String, Object>> data = statisticsService.countByMonth();
         return Result.success(SystemConstants.STATISTICS_QUERY_SUCCESS, data);
     }
@@ -74,6 +77,7 @@ public class StatisticsController {
     @Operation(summary = "按年统计回收数量")
     @GetMapping("/yearly")
     public Result<List<Map<String, Object>>> countByYear() {
+        AuthUtil.requireAdmin();
         List<Map<String, Object>> data = statisticsService.countByYear();
         return Result.success(SystemConstants.STATISTICS_QUERY_SUCCESS, data);
     }
@@ -84,6 +88,7 @@ public class StatisticsController {
     @Operation(summary = "统计订单状态分布")
     @GetMapping("/order-status")
     public Result<List<Map<String, Object>>> countByOrderStatus() {
+        AuthUtil.requireAdmin();
         List<Map<String, Object>> data = statisticsService.countByOrderStatus();
         return Result.success(SystemConstants.STATISTICS_QUERY_SUCCESS, data);
     }
@@ -94,6 +99,7 @@ public class StatisticsController {
     @Operation(summary = "统计地区回收排行", description = "limit 表示返回排行条数，默认全部")
     @GetMapping("/city-rank")
     public Result<List<Map<String, Object>>> countByCity(@RequestParam(required = false) Integer limit) {
+        AuthUtil.requireAdmin();
         List<Map<String, Object>> data = statisticsService.countByCity(limit);
         return Result.success(SystemConstants.STATISTICS_QUERY_SUCCESS, data);
     }
@@ -104,6 +110,7 @@ public class StatisticsController {
     @Operation(summary = "获取综合统计数据", description = "聚合电池类型、近7天、订单状态、地区排行统计")
     @GetMapping("/overview")
     public Result<Map<String, Object>> getOverview() {
+        AuthUtil.requireAdmin();
         Map<String, Object> overview = new HashMap<>();
         overview.put("batteryTypeStats", statisticsService.countByBatteryType());
         overview.put("dateStats", statisticsService.countByDate(7));

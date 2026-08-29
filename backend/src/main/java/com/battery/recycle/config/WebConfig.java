@@ -1,6 +1,6 @@
 package com.battery.recycle.config;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.battery.recycle.interceptor.JwtInterceptor;
 import org.springframework.context.annotation.Configuration;
@@ -12,10 +12,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * Web配置类
  */
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    @Resource
-    private JwtInterceptor jwtInterceptor;
+        private final JwtInterceptor jwtInterceptor;
 
     /**
      * 配置拦截器

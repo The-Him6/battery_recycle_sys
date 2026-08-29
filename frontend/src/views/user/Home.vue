@@ -5,7 +5,7 @@
       <img :src="loginBg" alt="欢迎背景" class="banner-bg-image" />
       <div class="banner-bg-overlay"></div>
       <div class="banner-content">
-        <h1 class="banner-title">欢迎使用废电池回收系统</h1>
+        <h1 class="banner-title">欢迎使用绿源回收积分平台</h1>
         <p class="banner-subtitle">让废旧电池回收更方便、更环保，共建绿色未来</p>
         <el-button type="primary" size="large" @click="$router.push('/user/recycle')" class="recycle-btn">
           <el-icon><Plus /></el-icon>

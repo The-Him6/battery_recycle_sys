@@ -2,7 +2,7 @@ package com.battery.recycle.controller;
 
 import com.battery.recycle.util.AuthUtil;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.battery.recycle.annotation.OssUpload;
 import com.battery.recycle.common.PageRequest;
@@ -12,7 +12,7 @@ import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.dto.ChangePasswordDTO;
 import com.battery.recycle.dto.UserDTO;
 import com.battery.recycle.entity.User;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.ForbiddenException;
 import com.battery.recycle.service.IFileUploadService;
 import com.battery.recycle.service.IUserService;
 import com.battery.recycle.vo.UserVO;
@@ -30,13 +30,12 @@ import java.util.List;
 @Tag(name = "用户管理", description = "用户信息、密码、头像与后台用户管理")
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Resource
-    private IUserService userService;
+        private final IUserService userService;
 
-    @Resource
-    private IFileUploadService fileUploadService;
+        private final IFileUploadService fileUploadService;
 
     /**
      * 获取当前用户信息
@@ -52,9 +51,15 @@ public class UserController {
     /**
      * 根据ID查询用户
      */
-    @Operation(summary = "根据ID查询用户")
+    @Operation(summary = "根据ID查询用户", description = "管理员可查询任意用户，普通用户只能查询自己的信息")
     @GetMapping("/{id}")
     public Result<UserVO> getById(@PathVariable Long id) {
+        Long userId = AuthUtil.getUserId();
+        Integer role = AuthUtil.getRole();
+        // 普通用户只能查看自己的信息
+        if (!SystemConstants.ROLE_ADMIN.equals(role) && !userId.equals(id)) {
+            throw new ForbiddenException(SystemConstants.PERMISSION_DENIED);
+        }
         UserVO userVO = userService.getById(id);
         return Result.success(userVO);
     }
@@ -65,10 +70,7 @@ public class UserController {
     @Operation(summary = "查询所有用户", description = "仅管理员可操作")
     @GetMapping("/list")
     public Result<List<UserVO>> listAll() {
-        Integer role = AuthUtil.getRole();
-        if (!role.equals(SystemConstants.ROLE_ADMIN)) {
-            throw new BusinessException(SystemConstants.ADMIN_ONLY);
-        }
+        AuthUtil.requireAdmin();
         List<UserVO> list = userService.listAll();
         return Result.success(list);
     }
@@ -83,10 +85,7 @@ public class UserController {
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) String username) {
-        Integer role = AuthUtil.getRole();
-        if (!role.equals(SystemConstants.ROLE_ADMIN)) {
-            throw new BusinessException(SystemConstants.ADMIN_ONLY);
-        }
+        AuthUtil.requireAdmin();
 
         PageRequest pageRequest = new PageRequest();
         pageRequest.setPageNum(pageNum);
@@ -113,8 +112,8 @@ public class UserController {
         Integer role = AuthUtil.getRole();
 
         // 普通用户只能修改自己的信息
-        if (!role.equals(SystemConstants.ROLE_ADMIN) && !dto.getId().equals(userId)) {
-            throw new BusinessException(SystemConstants.PERMISSION_DENIED);
+        if (!SystemConstants.ROLE_ADMIN.equals(role) && (dto.getId() == null || !dto.getId().equals(userId))) {
+            throw new ForbiddenException(SystemConstants.PERMISSION_DENIED);
         }
 
         User user = new User();
@@ -140,10 +139,7 @@ public class UserController {
     @Operation(summary = "添加用户", description = "仅管理员可操作")
     @PostMapping
     public Result<Void> addUser(@RequestBody User user) {
-        Integer role = AuthUtil.getRole();
-        if (!role.equals(SystemConstants.ROLE_ADMIN)) {
-            throw new BusinessException(SystemConstants.ADMIN_ONLY);
-        }
+        AuthUtil.requireAdmin();
         userService.addUser(user);
         return Result.success("添加用户成功", null);
     }
@@ -154,9 +150,10 @@ public class UserController {
     @Operation(summary = "删除用户", description = "仅管理员可操作")
     @DeleteMapping("/{id}")
     public Result<Void> deleteById(@PathVariable Long id) {
-        Integer role = AuthUtil.getRole();
-        if (!role.equals(SystemConstants.ROLE_ADMIN)) {
-            throw new BusinessException(SystemConstants.ADMIN_ONLY);
+        AuthUtil.requireAdmin();
+        // 不能删除自己的账号
+        if (id.equals(AuthUtil.getUserId())) {
+            throw new ForbiddenException(SystemConstants.USER_CANNOT_DELETE_SELF);
         }
         userService.deleteById(id);
         return Result.success(SystemConstants.USER_DELETE_SUCCESS, null);

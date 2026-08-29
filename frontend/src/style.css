@@ -91,6 +91,11 @@ body {
   transform: translateY(-2px);
 }
 
+/* 图表卡片 hover 时取消 transform：CSS transform 会把 canvas 提升到 GPU 层重新光栅化导致图表变模糊 */
+.chart-card:hover {
+  transform: none;
+}
+
 /* 页面容器 */
 .page-container {
   padding: 20px;

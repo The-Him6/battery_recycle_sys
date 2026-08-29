@@ -1,6 +1,6 @@
 package com.battery.recycle.service.impl;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.battery.recycle.common.PageRequest;
 import com.battery.recycle.common.PageResult;
@@ -9,13 +9,18 @@ import com.battery.recycle.entity.BatteryType;
 import com.battery.recycle.entity.RecycleDetail;
 import com.battery.recycle.entity.RecycleOrder;
 import com.battery.recycle.entity.User;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.BadRequestException;
+import com.battery.recycle.exception.DbException;
+import com.battery.recycle.exception.ForbiddenException;
 import com.battery.recycle.mapper.BatteryTypeMapper;
 import com.battery.recycle.mapper.RecycleDetailMapper;
 import com.battery.recycle.mapper.RecycleOrderMapper;
 import com.battery.recycle.mapper.UserMapper;
 import com.battery.recycle.service.IRecycleOrderService;
 import com.battery.recycle.service.IUserPointsService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -23,28 +28,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 回收订单服务类
  */
 @Service("recycleOrderService")
+@RequiredArgsConstructor
 public class RecycleOrderServiceImpl implements IRecycleOrderService {
 
-    @Resource
-    private RecycleOrderMapper recycleOrderMapper;
+        private final RecycleOrderMapper recycleOrderMapper;
 
-    @Resource
-    private RecycleDetailMapper recycleDetailMapper;
+        private final RecycleDetailMapper recycleDetailMapper;
 
-    @Resource
-    private BatteryTypeMapper batteryTypeMapper;
+        private final BatteryTypeMapper batteryTypeMapper;
 
-    @Resource
-    private UserMapper userMapper;
+        private final UserMapper userMapper;
 
-    @Resource
-    private IUserPointsService userPointsService;
+        private final IUserPointsService userPointsService;
+
+        private final ObjectMapper objectMapper;
 
     /**
      * 根据ID查询订单
@@ -52,7 +56,7 @@ public class RecycleOrderServiceImpl implements IRecycleOrderService {
     public RecycleOrder getById(Long id) {
         RecycleOrder order = recycleOrderMapper.getById(id);
         if (order == null) {
-            throw new BusinessException(SystemConstants.ORDER_NOT_FOUND);
+            throw new DbException(SystemConstants.ORDER_NOT_FOUND);
         }
         return order;
     }
@@ -88,13 +92,31 @@ public class RecycleOrderServiceImpl implements IRecycleOrderService {
 
     /**
      * 查询订单明细
+     * 已完成订单的明细从 recycle_detail 表查询，未完成订单的明细从 detailJson 解析
      */
     public List<RecycleDetail> getOrderDetails(Long orderId) {
-        return recycleDetailMapper.listByOrderId(orderId);
+        RecycleOrder order = recycleOrderMapper.getById(orderId);
+        if (order == null) {
+            return new ArrayList<>();
+        }
+        // 已完成订单的明细已写入明细表，直接查表
+        if (SystemConstants.ORDER_STATUS_COMPLETED.equals(order.getOrderStatus())) {
+            return recycleDetailMapper.listByOrderId(orderId);
+        }
+        // 未完成订单的明细暂存在 detailJson 中
+        if (order.getDetailJson() == null || order.getDetailJson().isEmpty()) {
+            return new ArrayList<>();
+        }
+        try {
+            return objectMapper.readValue(order.getDetailJson(), new TypeReference<List<RecycleDetail>>() {});
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("订单明细反序列化失败", e);
+        }
     }
 
     /**
      * 创建订单
+     * 明细暂存到 detailJson 字段，待订单完成后再写入 recycle_detail
      */
     @Transactional(rollbackFor = Exception.class)
     public void createOrder(RecycleOrder order, List<RecycleDetail> details) {
@@ -109,7 +131,7 @@ public class RecycleOrderServiceImpl implements IRecycleOrderService {
         for (RecycleDetail detail : details) {
             BatteryType batteryType = batteryTypeMapper.getById(detail.getBatteryTypeId());
             if (batteryType == null) {
-                throw new BusinessException(SystemConstants.BATTERY_TYPE_NOT_FOUND);
+                throw new DbException(SystemConstants.BATTERY_TYPE_NOT_FOUND);
             }
 
             int points = batteryType.getPoints() * detail.getBatteryCount();
@@ -123,36 +145,70 @@ public class RecycleOrderServiceImpl implements IRecycleOrderService {
         order.setTotalPoints(totalPoints);
         order.setOrderStatus(SystemConstants.ORDER_STATUS_PENDING); // 设置为待处理状态
 
+        // 明细暂存到订单的 detailJson 字段，待订单完成后再写入 recycle_detail
+        try {
+            order.setDetailJson(objectMapper.writeValueAsString(details));
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("订单明细序列化失败", e);
+        }
+
         // 插入订单
         recycleOrderMapper.insert(order);
-
-        // 插入订单明细
-        for (RecycleDetail detail : details) {
-            detail.setOrderId(order.getId());
-        }
-        recycleDetailMapper.batchInsert(details);
-
-        // 订单创建时不增加积分，等待管理员审核完成后再增加
     }
 
     /**
      * 更新订单状态
+     * 订单变为已完成时，将暂存的明细写入 recycle_detail 并发放积分
      */
     @Transactional(rollbackFor = Exception.class)
     public void updateStatus(Long id, Integer status) {
         RecycleOrder order = recycleOrderMapper.getById(id);
         if (order == null) {
-            throw new BusinessException(SystemConstants.ORDER_NOT_FOUND);
+            throw new DbException(SystemConstants.ORDER_NOT_FOUND);
         }
 
         Integer oldStatus = order.getOrderStatus();
+        // 状态流转校验：已完成/已取消为终态，不可再变更；新状态必须在合法集合内
+        if (status == null
+                || SystemConstants.ORDER_STATUS_COMPLETED.equals(oldStatus)
+                || SystemConstants.ORDER_STATUS_CANCELLED.equals(oldStatus)
+                || (status != 0 && status != 1 && status != 2 && status != 3)) {
+            throw new BadRequestException(SystemConstants.ORDER_STATUS_ILLEGAL);
+        }
         order.setOrderStatus(status);
         recycleOrderMapper.update(order);
 
-        // 如果订单变为已完成状态，且之前不是已完成状态，给用户增加积分
-        if (status.equals(SystemConstants.ORDER_STATUS_COMPLETED) &&
-                !oldStatus.equals(SystemConstants.ORDER_STATUS_COMPLETED)) {
-            userPointsService.addPoints(order.getUserId(), order.getTotalPoints());
+        // 订单变为已完成时，才把明细写入 recycle_detail（确保明细表只有已完成订单的数据）
+        if (SystemConstants.ORDER_STATUS_COMPLETED.equals(status)) {
+            insertDetailsOnComplete(order);
+
+            // 给用户增加积分
+            boolean success = userPointsService.addPoints(order.getUserId(), order.getTotalPoints());
+            if (!success) {
+                throw new DbException(SystemConstants.POINTS_GRANT_FAILED);
+            }
+        }
+    }
+
+    /**
+     * 订单完成时，将暂存的明细写入 recycle_detail
+     */
+    private void insertDetailsOnComplete(RecycleOrder order) {
+        if (order.getDetailJson() == null || order.getDetailJson().isEmpty()) {
+            return;
+        }
+        try {
+            List<RecycleDetail> details = objectMapper.readValue(order.getDetailJson(),
+                    new TypeReference<List<RecycleDetail>>() {});
+            if (details == null || details.isEmpty()) {
+                return;
+            }
+            for (RecycleDetail detail : details) {
+                detail.setOrderId(order.getId());
+            }
+            recycleDetailMapper.batchInsert(details);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("订单明细反序列化失败", e);
         }
     }
 
@@ -162,17 +218,17 @@ public class RecycleOrderServiceImpl implements IRecycleOrderService {
     public void cancelOrder(Long id, Long userId) {
         RecycleOrder order = recycleOrderMapper.getById(id);
         if (order == null) {
-            throw new BusinessException(SystemConstants.ORDER_NOT_FOUND);
+            throw new DbException(SystemConstants.ORDER_NOT_FOUND);
         }
 
         // 检查是否是订单所有者
         if (!order.getUserId().equals(userId)) {
-            throw new BusinessException(SystemConstants.PERMISSION_DENIED);
+            throw new ForbiddenException(SystemConstants.PERMISSION_DENIED);
         }
 
         // 只有待处理状态的订单可以取消
         if (!order.getOrderStatus().equals(SystemConstants.ORDER_STATUS_PENDING)) {
-            throw new BusinessException(SystemConstants.ORDER_CANNOT_CANCEL);
+            throw new BadRequestException(SystemConstants.ORDER_CANNOT_CANCEL);
         }
 
         order.setOrderStatus(SystemConstants.ORDER_STATUS_CANCELLED);

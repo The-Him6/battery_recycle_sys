@@ -1,7 +1,7 @@
 package com.battery.recycle.util;
 
 import com.battery.recycle.constant.SystemConstants;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.UnauthorizedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -75,7 +75,7 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (Exception e) {
-            throw new BusinessException(401, SystemConstants.TOKEN_INVALID);
+            throw new UnauthorizedException(SystemConstants.TOKEN_INVALID);
         }
     }
     

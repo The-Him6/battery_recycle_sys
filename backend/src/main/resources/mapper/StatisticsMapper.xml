@@ -7,8 +7,9 @@
         SELECT
             (SELECT COUNT(*) FROM user) AS userCount,
             (SELECT COUNT(*) FROM recycle_order) AS orderCount,
-            COALESCE((SELECT SUM(total_count) FROM recycle_order), 0) AS batteryCount,
-            COALESCE((SELECT SUM(total_count) FROM recycle_order WHERE DATE(create_time) = CURDATE()), 0) AS todayCount
+            COALESCE((SELECT SUM(battery_count) FROM recycle_detail), 0) AS batteryCount,
+            COALESCE((SELECT SUM(battery_count) FROM recycle_detail
+                      WHERE create_time >= CURDATE() AND create_time &lt; CURDATE() + INTERVAL 1 DAY), 0) AS todayCount
     </select>
     
     <!-- 统计每种电池的回收数量 -->
@@ -19,9 +20,7 @@
             COALESCE(SUM(rd.battery_count), 0) AS totalCount
         FROM battery_type bt
         LEFT JOIN recycle_detail rd ON bt.id = rd.battery_type_id
-        LEFT JOIN recycle_order ro ON rd.order_id = ro.id AND ro.order_status != 3
         GROUP BY bt.id, bt.type_name
-        ORDER BY totalCount DESC, bt.id ASC
     </select>
     
     <!-- 统计每日回收数量（最近N天） -->
@@ -32,7 +31,7 @@
             COALESCE(SUM(ro.total_count), 0) AS totalCount
         FROM recycle_order ro
         WHERE ro.create_time >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
-          AND ro.order_status != 3
+          AND ro.order_status = 2
         GROUP BY DATE(ro.create_time)
         ORDER BY date ASC
     </select>
@@ -46,7 +45,7 @@
             COALESCE(SUM(ro.total_count), 0) AS totalCount
         FROM recycle_order ro
         WHERE ro.create_time >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
-          AND ro.order_status != 3
+          AND ro.order_status = 2
         GROUP BY YEAR(ro.create_time), MONTH(ro.create_time)
         ORDER BY year ASC, month ASC
     </select>
@@ -58,7 +57,7 @@
             COUNT(ro.id) AS orderCount,
             COALESCE(SUM(ro.total_count), 0) AS totalCount
         FROM recycle_order ro
-        WHERE ro.order_status != 3
+        WHERE ro.order_status = 2
         GROUP BY YEAR(ro.create_time)
         ORDER BY year ASC
     </select>
@@ -89,7 +88,7 @@
                 total_count,
                 total_points
             FROM recycle_order
-            WHERE order_status != 3
+            WHERE order_status = 2
               AND recycle_address IS NOT NULL
               AND recycle_address != ''
         ) city_stat

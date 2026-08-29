@@ -2,12 +2,14 @@ package com.battery.recycle.service.impl;
 
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.UserSeckillCoupon;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.BadRequestException;
+import com.battery.recycle.exception.DbException;
+import com.battery.recycle.exception.ForbiddenException;
 import com.battery.recycle.mapper.UserSeckillCouponMapper;
 import com.battery.recycle.service.IUserSeckillCouponService;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,10 +17,10 @@ import java.util.List;
  * 用户秒杀券服务类
  */
 @Service("userSeckillCouponService")
+@RequiredArgsConstructor
 public class UserSeckillCouponServiceImpl implements IUserSeckillCouponService {
 
-    @Resource
-    private UserSeckillCouponMapper userSeckillCouponMapper;
+        private final UserSeckillCouponMapper userSeckillCouponMapper;
 
     /**
      * 根据ID查询用户券
@@ -26,7 +28,7 @@ public class UserSeckillCouponServiceImpl implements IUserSeckillCouponService {
     public UserSeckillCoupon getById(Long id) {
         UserSeckillCoupon coupon = userSeckillCouponMapper.getById(id);
         if (coupon == null) {
-            throw new BusinessException(SystemConstants.SECKILL_COUPON_NOT_FOUND);
+            throw new DbException(SystemConstants.SECKILL_COUPON_NOT_FOUND);
         }
         refreshExpiredStatus(coupon);
         return coupon;
@@ -56,22 +58,22 @@ public class UserSeckillCouponServiceImpl implements IUserSeckillCouponService {
     public UserSeckillCoupon validateCouponForExchange(Long couponId, Long userId) {
         UserSeckillCoupon coupon = getById(couponId);
         if (!coupon.getUserId().equals(userId)) {
-            throw new BusinessException(SystemConstants.PERMISSION_DENIED);
+            throw new ForbiddenException(SystemConstants.PERMISSION_DENIED);
         }
         if (SystemConstants.COUPON_STATUS_USED.equals(coupon.getStatus())) {
-            throw new BusinessException(SystemConstants.SECKILL_COUPON_USED);
+            throw new BadRequestException(SystemConstants.SECKILL_COUPON_USED);
         }
         if (SystemConstants.COUPON_STATUS_EXPIRED.equals(coupon.getStatus())) {
-            throw new BusinessException(SystemConstants.SECKILL_COUPON_EXPIRED);
+            throw new BadRequestException(SystemConstants.SECKILL_COUPON_EXPIRED);
         }
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(coupon.getEffectiveTime())) {
-            throw new BusinessException(SystemConstants.SECKILL_COUPON_NOT_EFFECTIVE);
+            throw new BadRequestException(SystemConstants.SECKILL_COUPON_NOT_EFFECTIVE);
         }
         if (now.isAfter(coupon.getExpireTime())) {
             userSeckillCouponMapper.markExpired(coupon.getId());
             coupon.setStatus(SystemConstants.COUPON_STATUS_EXPIRED);
-            throw new BusinessException(SystemConstants.SECKILL_COUPON_EXPIRED);
+            throw new BadRequestException(SystemConstants.SECKILL_COUPON_EXPIRED);
         }
         return coupon;
     }
@@ -82,7 +84,7 @@ public class UserSeckillCouponServiceImpl implements IUserSeckillCouponService {
     public void markUsed(Long couponId, Long productId, Long exchangeRecordId) {
         int rows = userSeckillCouponMapper.markUsed(couponId, productId, exchangeRecordId);
         if (rows == 0) {
-            throw new BusinessException(SystemConstants.SECKILL_COUPON_USED);
+            throw new BadRequestException(SystemConstants.SECKILL_COUPON_USED);
         }
     }
 

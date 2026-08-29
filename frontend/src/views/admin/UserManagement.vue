@@ -135,7 +135,7 @@
           <el-input v-model="editForm.username" placeholder="请输入用户名" />
         </el-form-item>
         <el-form-item label="密码" prop="password" v-if="!isEdit">
-          <el-input v-model="editForm.password" type="password" placeholder="请输入密码" />
+          <el-input v-model="editForm.password" type="password" placeholder="请输入密码（6-20位，仅限大小写字母、数字和 . !）" />
         </el-form-item>
         <el-form-item label="昵称">
           <el-input v-model="editForm.nickname" placeholder="请输入昵称" />
@@ -199,7 +199,8 @@ const rules = {
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在6-20个字符', trigger: 'blur' }
+    { min: 6, max: 20, message: '密码长度在6-20个字符', trigger: 'blur' },
+    { pattern: /^[A-Za-z0-9.!]{6,20}$/, message: '密码只能包含大小写字母、数字和 . !，长度6-20位', trigger: 'blur' }
   ]
 }
 

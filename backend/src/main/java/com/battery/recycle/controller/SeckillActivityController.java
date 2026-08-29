@@ -1,15 +1,17 @@
 package com.battery.recycle.controller;
 
-import jakarta.annotation.Resource;
-
 import com.battery.recycle.common.Result;
 import com.battery.recycle.entity.SeckillActivity;
 import com.battery.recycle.service.ISeckillActivityService;
 import com.battery.recycle.util.AuthUtil;
+import com.battery.recycle.vo.SeckillActivityVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,19 +20,26 @@ import java.util.List;
 @Tag(name = "秒杀活动管理", description = "秒杀活动的创建、上下架、库存预热与用户抢券")
 @RestController
 @RequestMapping("/seckill")
+@RequiredArgsConstructor
 public class SeckillActivityController {
 
-    @Resource
-    private ISeckillActivityService seckillActivityService;
+        private final ISeckillActivityService seckillActivityService;
 
     /**
      * 管理员查询全部秒杀活动
      */
     @Operation(summary = "查询全部秒杀活动", description = "仅管理员可操作")
     @GetMapping("/activity/list")
-    public Result<List<SeckillActivity>> listAll() {
+    public Result<List<SeckillActivityVO>> listAll() {
         AuthUtil.requireAdmin();
-        return Result.success(seckillActivityService.listAll());
+        List<SeckillActivity> list = seckillActivityService.listAll();
+        List<SeckillActivityVO> voList = new ArrayList<>();
+        for (SeckillActivity item : list) {
+            SeckillActivityVO vo = new SeckillActivityVO();
+            BeanUtils.copyProperties(item, vo);
+            voList.add(vo);
+        }
+        return Result.success(voList);
     }
 
     /**
@@ -38,8 +47,15 @@ public class SeckillActivityController {
      */
     @Operation(summary = "查询已上架秒杀活动")
     @GetMapping("/activity/online")
-    public Result<List<SeckillActivity>> listOnline() {
-        return Result.success(seckillActivityService.listOnline());
+    public Result<List<SeckillActivityVO>> listOnline() {
+        List<SeckillActivity> list = seckillActivityService.listOnline();
+        List<SeckillActivityVO> voList = new ArrayList<>();
+        for (SeckillActivity item : list) {
+            SeckillActivityVO vo = new SeckillActivityVO();
+            BeanUtils.copyProperties(item, vo);
+            voList.add(vo);
+        }
+        return Result.success(voList);
     }
 
     /**
@@ -47,8 +63,11 @@ public class SeckillActivityController {
      */
     @Operation(summary = "根据ID查询秒杀活动")
     @GetMapping("/activity/{id}")
-    public Result<SeckillActivity> getById(@PathVariable Long id) {
-        return Result.success(seckillActivityService.getById(id));
+    public Result<SeckillActivityVO> getById(@PathVariable Long id) {
+        SeckillActivity activity = seckillActivityService.getById(id);
+        SeckillActivityVO vo = new SeckillActivityVO();
+        BeanUtils.copyProperties(activity, vo);
+        return Result.success(vo);
     }
 
     /**

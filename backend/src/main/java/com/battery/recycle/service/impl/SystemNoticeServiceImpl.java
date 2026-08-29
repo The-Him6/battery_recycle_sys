@@ -3,26 +3,25 @@ package com.battery.recycle.service.impl;
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.SystemNotice;
 import com.battery.recycle.entity.UserNoticeRead;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.DbException;
 import com.battery.recycle.mapper.SystemNoticeMapper;
 import com.battery.recycle.mapper.UserNoticeReadMapper;
 import com.battery.recycle.service.ISystemNoticeService;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 /**
  * 系统弹窗公告服务类
  */
 @Service("systemNoticeService")
+@RequiredArgsConstructor
 public class SystemNoticeServiceImpl implements ISystemNoticeService {
 
-    @Resource
-    private SystemNoticeMapper systemNoticeMapper;
+        private final SystemNoticeMapper systemNoticeMapper;
 
-    @Resource
-    private UserNoticeReadMapper userNoticeReadMapper;
+        private final UserNoticeReadMapper userNoticeReadMapper;
 
     /**
      * 根据ID查询公告
@@ -30,7 +29,7 @@ public class SystemNoticeServiceImpl implements ISystemNoticeService {
     public SystemNotice getById(Long id) {
         SystemNotice notice = systemNoticeMapper.getById(id);
         if (notice == null) {
-            throw new BusinessException(SystemConstants.NOTICE_NOT_FOUND);
+            throw new DbException(SystemConstants.NOTICE_NOT_FOUND);
         }
         return notice;
     }
@@ -65,7 +64,7 @@ public class SystemNoticeServiceImpl implements ISystemNoticeService {
      */
     public void update(SystemNotice notice) {
         if (notice.getId() == null || systemNoticeMapper.getById(notice.getId()) == null) {
-            throw new BusinessException(SystemConstants.NOTICE_NOT_FOUND);
+            throw new DbException(SystemConstants.NOTICE_NOT_FOUND);
         }
         systemNoticeMapper.update(notice);
     }
@@ -75,7 +74,7 @@ public class SystemNoticeServiceImpl implements ISystemNoticeService {
      */
     public void markRead(Long noticeId, Long userId) {
         if (systemNoticeMapper.getById(noticeId) == null) {
-            throw new BusinessException(SystemConstants.NOTICE_NOT_FOUND);
+            throw new DbException(SystemConstants.NOTICE_NOT_FOUND);
         }
         UserNoticeRead read = new UserNoticeRead();
         read.setNoticeId(noticeId);

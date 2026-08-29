@@ -1,6 +1,6 @@
 package com.battery.recycle.service.impl;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.battery.recycle.mapper.StatisticsMapper;
 import com.battery.recycle.service.IStatisticsService;
@@ -14,10 +14,10 @@ import java.util.Map;
  * 统计服务类
  */
 @Service("statisticsService")
+@RequiredArgsConstructor
 public class StatisticsServiceImpl implements IStatisticsService {
 
-    @Resource
-    private StatisticsMapper statisticsMapper;
+        private final StatisticsMapper statisticsMapper;
 
     /**
      * 查询管理员首页数据概览，后端直接聚合数字，避免前端拉全量列表再计算。
