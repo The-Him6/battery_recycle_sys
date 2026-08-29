@@ -10,7 +10,7 @@ import com.battery.recycle.util.AuthUtil;
 import com.battery.recycle.vo.LoginVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,10 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "认证模块", description = "用户注册、登录、退出登录、忘记密码")
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
     
-    @Resource
-    private IAuthService authService;
+        private final IAuthService authService;
     
     /**
      * 用户注册

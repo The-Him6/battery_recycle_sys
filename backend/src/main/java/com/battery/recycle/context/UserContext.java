@@ -1,4 +1,4 @@
-package com.battery.recycle.vo;
+package com.battery.recycle.context;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

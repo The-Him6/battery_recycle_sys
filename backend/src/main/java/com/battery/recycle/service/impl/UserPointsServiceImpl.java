@@ -1,35 +1,42 @@
 package com.battery.recycle.service.impl;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.battery.recycle.entity.UserPoints;
 import com.battery.recycle.mapper.UserPointsMapper;
 import com.battery.recycle.service.IUserPointsService;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 用户积分服务类
  */
 @Service("userPointsService")
+@RequiredArgsConstructor
 public class UserPointsServiceImpl implements IUserPointsService {
 
-    @Resource
-    private UserPointsMapper userPointsMapper;
+        private final UserPointsMapper userPointsMapper;
 
     /**
      * 根据用户ID查询积分
      */
+    @Transactional(rollbackFor = Exception.class)
     public UserPoints getByUserId(Long userId) {
         UserPoints userPoints = userPointsMapper.getByUserId(userId);
         if (userPoints == null) {
-            // 如果不存在，创建初始积分记录
-            userPoints = new UserPoints();
-            userPoints.setUserId(userId);
-            userPoints.setTotalPoints(0);
-            userPoints.setAvailablePoints(0);
-            userPoints.setUsedPoints(0);
-            userPointsMapper.insert(userPoints);
+            // 如果不存在，创建初始积分记录（user_id 需建唯一索引，并发下靠唯一索引兜底）
+            try {
+                userPoints = new UserPoints();
+                userPoints.setUserId(userId);
+                userPoints.setTotalPoints(0);
+                userPoints.setAvailablePoints(0);
+                userPoints.setUsedPoints(0);
+                userPointsMapper.insert(userPoints);
+            } catch (DuplicateKeyException e) {
+                // 并发下他人已插入，直接重新查询
+                userPoints = userPointsMapper.getByUserId(userId);
+            }
         }
         return userPoints;
     }
@@ -38,11 +45,11 @@ public class UserPointsServiceImpl implements IUserPointsService {
      * 增加积分
      */
     @Transactional(rollbackFor = Exception.class)
-    public void addPoints(Long userId, Integer points) {
+    public boolean addPoints(Long userId, Integer points) {
         // 确保用户积分记录存在
         getByUserId(userId);
         // 增加积分
-        userPointsMapper.addPoints(userId, points);
+        return userPointsMapper.addPoints(userId, points) > 0;
     }
 
     /**

@@ -1,9 +1,5 @@
 package com.battery.recycle.controller;
 
-import com.battery.recycle.util.AuthUtil;
-
-import jakarta.annotation.Resource;
-
 import com.battery.recycle.common.PageRequest;
 import com.battery.recycle.common.PageResult;
 import com.battery.recycle.common.Result;
@@ -11,16 +7,17 @@ import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.dto.CreateOrderDTO;
 import com.battery.recycle.entity.RecycleDetail;
 import com.battery.recycle.entity.RecycleOrder;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.ForbiddenException;
 import com.battery.recycle.service.IRecycleOrderService;
+import com.battery.recycle.util.AuthUtil;
 import com.battery.recycle.vo.OrderVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,10 +27,10 @@ import java.util.Map;
 @Tag(name = "回收订单管理", description = "回收订单的创建、查询与状态管理")
 @RestController
 @RequestMapping("/order")
+@RequiredArgsConstructor
 public class RecycleOrderController {
 
-    @Resource
-    private IRecycleOrderService recycleOrderService;
+        private final IRecycleOrderService recycleOrderService;
 
     /**
      * 根据ID查询订单
@@ -47,8 +44,8 @@ public class RecycleOrderController {
         RecycleOrder order = recycleOrderService.getById(id);
 
         // 普通用户只能查看自己的订单
-        if (!role.equals(SystemConstants.ROLE_ADMIN) && !order.getUserId().equals(userId)) {
-            throw new BusinessException(SystemConstants.PERMISSION_DENIED);
+        if (!SystemConstants.ROLE_ADMIN.equals(role) && !order.getUserId().equals(userId)) {
+            throw new ForbiddenException(SystemConstants.PERMISSION_DENIED);
         }
 
         // 查询订单明细
@@ -66,13 +63,16 @@ public class RecycleOrderController {
      */
     @Operation(summary = "查询所有订单", description = "仅管理员可操作")
     @GetMapping("/list")
-    public Result<List<RecycleOrder>> listAll() {
-        Integer role = AuthUtil.getRole();
-        if (!role.equals(SystemConstants.ROLE_ADMIN)) {
-            throw new BusinessException(SystemConstants.ADMIN_ONLY);
-        }
+    public Result<List<OrderVO>> listAll() {
+        AuthUtil.requireAdmin();
         List<RecycleOrder> list = recycleOrderService.listAll();
-        return Result.success(list);
+        List<OrderVO> voList = new ArrayList<>();
+        for (RecycleOrder item : list) {
+            OrderVO vo = new OrderVO();
+            BeanUtils.copyProperties(item, vo);
+            voList.add(vo);
+        }
+        return Result.success(voList);
     }
 
     /**
@@ -80,17 +80,14 @@ public class RecycleOrderController {
      */
     @Operation(summary = "分页查询订单列表", description = "仅管理员可操作，支持地址、日期、状态条件搜索")
     @GetMapping("/page")
-    public Result<PageResult<RecycleOrder>> getOrderPage(
+    public Result<PageResult<OrderVO>> getOrderPage(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "20") Integer pageSize,
             @RequestParam(required = false) String address,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
             @RequestParam(required = false) Integer orderStatus) {
-        Integer role = AuthUtil.getRole();
-        if (!role.equals(SystemConstants.ROLE_ADMIN)) {
-            throw new BusinessException(SystemConstants.ADMIN_ONLY);
-        }
+        AuthUtil.requireAdmin();
 
         PageRequest pageRequest = new PageRequest();
         pageRequest.setPageNum(pageNum);
@@ -107,7 +104,15 @@ public class RecycleOrderController {
             pageResult = recycleOrderService.getOrderPage(pageRequest);
         }
 
-        return Result.success(pageResult);
+        List<OrderVO> voList = new ArrayList<>();
+        for (RecycleOrder item : pageResult.getList()) {
+            OrderVO vo = new OrderVO();
+            BeanUtils.copyProperties(item, vo);
+            voList.add(vo);
+        }
+        PageResult<OrderVO> voPageResult = new PageResult<>(voList, pageResult.getTotal(), pageResult.getPageNum(), pageResult.getPageSize());
+
+        return Result.success(voPageResult);
     }
 
     /**
@@ -115,7 +120,7 @@ public class RecycleOrderController {
      */
     @Operation(summary = "查询我的订单", description = "支持地址、日期条件搜索")
     @GetMapping("/my")
-    public Result<List<RecycleOrder>> listMyOrders(
+    public Result<List<OrderVO>> listMyOrders(
             @RequestParam(required = false) String address,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
@@ -131,7 +136,13 @@ public class RecycleOrderController {
             list = recycleOrderService.listByUserId(userId);
         }
 
-        return Result.success(list);
+        List<OrderVO> voList = new ArrayList<>();
+        for (RecycleOrder item : list) {
+            OrderVO vo = new OrderVO();
+            BeanUtils.copyProperties(item, vo);
+            voList.add(vo);
+        }
+        return Result.success(voList);
     }
 
     /**
@@ -168,10 +179,7 @@ public class RecycleOrderController {
     @Operation(summary = "更新订单状态", description = "仅管理员可操作")
     @PutMapping("/{id}/status")
     public Result<Void> updateStatus(@PathVariable Long id, @RequestBody Map<String, Integer> params) {
-        Integer role = AuthUtil.getRole();
-        if (!role.equals(SystemConstants.ROLE_ADMIN)) {
-            throw new BusinessException(SystemConstants.ADMIN_ONLY);
-        }
+        AuthUtil.requireAdmin();
 
         Integer status = params.get("status");
         recycleOrderService.updateStatus(id, status);

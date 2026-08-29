@@ -9,7 +9,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -19,16 +19,14 @@ import java.util.function.Function;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CacheClient {
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
+        private final StringRedisTemplate stringRedisTemplate;
 
-    @Resource
-    private RedissonClient redissonClient;
+        private final RedissonClient redissonClient;
 
-    @Resource
-    private ObjectMapper objectMapper;
+        private final ObjectMapper objectMapper;
 
     /**
      * 写入普通缓存

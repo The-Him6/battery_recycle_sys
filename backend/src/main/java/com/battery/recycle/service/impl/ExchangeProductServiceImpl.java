@@ -1,11 +1,12 @@
 package com.battery.recycle.service.impl;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.constant.RedisConstants;
 import com.battery.recycle.entity.ExchangeProduct;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.BadRequestException;
+import com.battery.recycle.exception.DbException;
 import com.battery.recycle.mapper.ExchangeProductMapper;
 import com.battery.recycle.service.IExchangeProductService;
 import com.battery.recycle.util.CacheClient;
@@ -19,16 +20,14 @@ import java.util.concurrent.TimeUnit;
  * 兑换商品服务类
  */
 @Service("exchangeProductService")
+@RequiredArgsConstructor
 public class ExchangeProductServiceImpl implements IExchangeProductService {
 
-    @Resource
-    private ExchangeProductMapper exchangeProductMapper;
+        private final ExchangeProductMapper exchangeProductMapper;
 
-    @Resource
-    private CacheClient cacheClient;
+        private final CacheClient cacheClient;
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
+        private final StringRedisTemplate stringRedisTemplate;
 
     /**
      * 根据ID查询商品
@@ -43,7 +42,7 @@ public class ExchangeProductServiceImpl implements IExchangeProductService {
                 TimeUnit.MINUTES
         );
         if (product == null) {
-            throw new BusinessException("商品不存在");
+            throw new DbException(SystemConstants.EXCHANGE_PRODUCT_NOT_FOUND);
         }
         return product;
     }
@@ -89,7 +88,7 @@ public class ExchangeProductServiceImpl implements IExchangeProductService {
     public void update(ExchangeProduct product) {
         ExchangeProduct existProduct = exchangeProductMapper.getById(product.getId());
         if (existProduct == null) {
-            throw new BusinessException("商品不存在");
+            throw new DbException(SystemConstants.EXCHANGE_PRODUCT_NOT_FOUND);
         }
         exchangeProductMapper.update(product);
         deleteProductCache(product.getId());
@@ -101,7 +100,7 @@ public class ExchangeProductServiceImpl implements IExchangeProductService {
     public void deleteById(Long id) {
         ExchangeProduct product = exchangeProductMapper.getById(id);
         if (product == null) {
-            throw new BusinessException("商品不存在");
+            throw new DbException(SystemConstants.EXCHANGE_PRODUCT_NOT_FOUND);
         }
         exchangeProductMapper.deleteById(id);
         deleteProductCache(id);

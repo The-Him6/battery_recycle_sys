@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -17,10 +17,10 @@ import java.util.concurrent.TimeUnit;
  * 登录态服务类
  */
 @Service("loginStateService")
+@RequiredArgsConstructor
 public class LoginStateServiceImpl implements ILoginStateService {
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
+        private final StringRedisTemplate stringRedisTemplate;
 
     @Value("${login.state-expiration:3600000}")
     private Long stateExpiration;

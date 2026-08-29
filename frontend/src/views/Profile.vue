@@ -81,7 +81,7 @@
         </el-form-item>
 
         <el-form-item label="新密码" prop="newPassword">
-          <el-input v-model="passwordForm.newPassword" type="password" show-password placeholder="请输入新密码" />
+          <el-input v-model="passwordForm.newPassword" type="password" show-password placeholder="请输入新密码（6-20位，仅限大小写字母、数字和 . !）" />
         </el-form-item>
 
         <el-form-item label="确认新密码" prop="confirmPassword">
@@ -140,6 +140,10 @@ const validateNewPassword = (rule, value, callback) => {
   }
   if (value.length < 6 || value.length > 20) {
     callback(new Error('密码长度在6-20个字符'))
+    return
+  }
+  if (!/^[A-Za-z0-9.!]{6,20}$/.test(value)) {
+    callback(new Error('密码只能包含大小写字母、数字和 . !，长度6-20位'))
     return
   }
   if (passwordForm.value.oldPassword && value === passwordForm.value.oldPassword) {

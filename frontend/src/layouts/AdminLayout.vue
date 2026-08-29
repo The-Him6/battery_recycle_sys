@@ -7,7 +7,7 @@
           <div class="logo-brand">
             <BatteryIcon :size="34" body-fill="#7d9f69" cap-fill="#5f7f50" inner-fill="#eef5ea" bolt-fill="#89b076" />
             <div class="logo-copy">
-              <span class="logo-text">废电池回收系统</span>
+              <span class="logo-text">绿源回收积分平台</span>
               <span class="logo-subtext">管理后台</span>
             </div>
           </div>

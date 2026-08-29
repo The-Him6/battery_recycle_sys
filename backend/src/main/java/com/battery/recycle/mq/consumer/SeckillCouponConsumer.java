@@ -2,7 +2,7 @@ package com.battery.recycle.mq.consumer;
 
 import com.battery.recycle.constant.RabbitMqConstants;
 import com.battery.recycle.constant.RedisConstants;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.CommonException;
 import com.battery.recycle.mq.message.SeckillCouponMessage;
 import com.battery.recycle.service.ISeckillActivityService;
 import com.rabbitmq.client.Channel;
@@ -15,7 +15,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -27,16 +27,14 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 @ConditionalOnProperty(name = "seckill.mq.type", havingValue = "rabbitmq", matchIfMissing = true)
+@RequiredArgsConstructor
 public class SeckillCouponConsumer {
 
-    @Resource
-    private RedissonClient redissonClient;
+        private final RedissonClient redissonClient;
 
-    @Resource
-    private RabbitTemplate rabbitTemplate;
+        private final RabbitTemplate rabbitTemplate;
 
-    @Resource
-    private ISeckillActivityService seckillActivityService;
+        private final ISeckillActivityService seckillActivityService;
 
     /**
      * 消费秒杀发券消息，成功后手动ACK，系统异常进入重试或死信。
@@ -48,7 +46,7 @@ public class SeckillCouponConsumer {
         try {
             handleBusiness(payload);
             channel.basicAck(deliveryTag, false);
-        } catch (BusinessException e) {
+        } catch (CommonException e) {
             // 积分不足等业务失败不再重试，直接补偿Redis预扣库存并ACK。
             log.warn("秒杀发券业务失败，准备补偿Redis：payload={}, reason={}", payload, e.getMessage());
             seckillActivityService.compensateRedis(payload.getActivityId(), payload.getUserId());

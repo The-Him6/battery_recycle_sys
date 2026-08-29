@@ -1,15 +1,17 @@
 package com.battery.recycle.controller;
 
-import jakarta.annotation.Resource;
-
 import com.battery.recycle.common.Result;
 import com.battery.recycle.entity.SystemNotice;
 import com.battery.recycle.service.ISystemNoticeService;
 import com.battery.recycle.util.AuthUtil;
+import com.battery.recycle.vo.SystemNoticeVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,19 +20,26 @@ import java.util.List;
 @Tag(name = "系统公告", description = "系统弹窗公告的增删改查与已读标记")
 @RestController
 @RequestMapping("/notice")
+@RequiredArgsConstructor
 public class SystemNoticeController {
 
-    @Resource
-    private ISystemNoticeService systemNoticeService;
+        private final ISystemNoticeService systemNoticeService;
 
     /**
      * 管理员查询全部公告
      */
     @Operation(summary = "查询全部公告", description = "仅管理员可操作")
     @GetMapping("/list")
-    public Result<List<SystemNotice>> listAll() {
+    public Result<List<SystemNoticeVO>> listAll() {
         AuthUtil.requireAdmin();
-        return Result.success(systemNoticeService.listAll());
+        List<SystemNotice> list = systemNoticeService.listAll();
+        List<SystemNoticeVO> voList = new ArrayList<>();
+        for (SystemNotice item : list) {
+            SystemNoticeVO vo = new SystemNoticeVO();
+            BeanUtils.copyProperties(item, vo);
+            voList.add(vo);
+        }
+        return Result.success(voList);
     }
 
     /**
@@ -38,8 +47,15 @@ public class SystemNoticeController {
      */
     @Operation(summary = "查询未读有效弹窗", description = "返回当前用户未读且在有效期内的公告")
     @GetMapping("/active")
-    public Result<List<SystemNotice>> listActiveUnread() {
-        return Result.success(systemNoticeService.listActiveUnread(AuthUtil.getUserId()));
+    public Result<List<SystemNoticeVO>> listActiveUnread() {
+        List<SystemNotice> list = systemNoticeService.listActiveUnread(AuthUtil.getUserId());
+        List<SystemNoticeVO> voList = new ArrayList<>();
+        for (SystemNotice item : list) {
+            SystemNoticeVO vo = new SystemNoticeVO();
+            BeanUtils.copyProperties(item, vo);
+            voList.add(vo);
+        }
+        return Result.success(voList);
     }
 
     /**

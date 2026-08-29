@@ -75,7 +75,7 @@ mybatis:
 
 # 服务器配置
 server:
-  port: 8081
+  port: 8080
   servlet:
     context-path: /api
 
@@ -88,11 +88,6 @@ jwt:
 login:
   state-expiration: 3600000  # Redis登录态1小时（毫秒），每次请求会刷新
 
-# 文件上传路径
-file:
-  upload-path: ./uploads/
-  avatar-path: ./uploads/avatar/
-
 # 阿里云OSS配置
 aliyun:
   oss:
@@ -101,7 +96,7 @@ aliyun:
     access-key-secret: ${OSS_ACCESS_KEY_SECRET}
     bucket-name: ${OSS_BUCKET_NAME}
 
-# 秒杀消息配置：默认使用RabbitMQ，保留Redis Stream实现方便学习对比
+# 秒杀消息配置：使用RabbitMQ
 seckill:
   mq:
     type: rabbitmq
