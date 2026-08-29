@@ -1,10 +1,11 @@
 package com.battery.recycle.service.impl;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.BatteryType;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.BadRequestException;
+import com.battery.recycle.exception.DbException;
 import com.battery.recycle.mapper.BatteryTypeMapper;
 import com.battery.recycle.service.IBatteryTypeService;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,10 @@ import java.util.List;
  * 电池种类服务类
  */
 @Service("batteryTypeService")
+@RequiredArgsConstructor
 public class BatteryTypeServiceImpl implements IBatteryTypeService {
     
-    @Resource
-    private BatteryTypeMapper batteryTypeMapper;
+        private final BatteryTypeMapper batteryTypeMapper;
     
     /**
      * 根据ID查询电池种类
@@ -26,7 +27,7 @@ public class BatteryTypeServiceImpl implements IBatteryTypeService {
     public BatteryType getById(Long id) {
         BatteryType batteryType = batteryTypeMapper.getById(id);
         if (batteryType == null) {
-            throw new BusinessException(SystemConstants.BATTERY_TYPE_NOT_FOUND);
+            throw new DbException(SystemConstants.BATTERY_TYPE_NOT_FOUND);
         }
         return batteryType;
     }
@@ -52,7 +53,7 @@ public class BatteryTypeServiceImpl implements IBatteryTypeService {
         // 检查名称是否已存在
         BatteryType existType = batteryTypeMapper.getByTypeName(batteryType.getTypeName());
         if (existType != null) {
-            throw new BusinessException(SystemConstants.BATTERY_TYPE_NAME_EXISTS);
+            throw new BadRequestException(SystemConstants.BATTERY_TYPE_NAME_EXISTS);
         }
         
         batteryTypeMapper.insert(batteryType);
@@ -64,14 +65,14 @@ public class BatteryTypeServiceImpl implements IBatteryTypeService {
     public void update(BatteryType batteryType) {
         BatteryType existType = batteryTypeMapper.getById(batteryType.getId());
         if (existType == null) {
-            throw new BusinessException(SystemConstants.BATTERY_TYPE_NOT_FOUND);
+            throw new DbException(SystemConstants.BATTERY_TYPE_NOT_FOUND);
         }
         
         // 如果修改了名称，检查新名称是否已存在
         if (batteryType.getTypeName() != null && !batteryType.getTypeName().equals(existType.getTypeName())) {
             BatteryType nameExist = batteryTypeMapper.getByTypeName(batteryType.getTypeName());
             if (nameExist != null) {
-                throw new BusinessException(SystemConstants.BATTERY_TYPE_NAME_EXISTS);
+                throw new BadRequestException(SystemConstants.BATTERY_TYPE_NAME_EXISTS);
             }
         }
         
@@ -84,7 +85,7 @@ public class BatteryTypeServiceImpl implements IBatteryTypeService {
     public void deleteById(Long id) {
         BatteryType batteryType = batteryTypeMapper.getById(id);
         if (batteryType == null) {
-            throw new BusinessException(SystemConstants.BATTERY_TYPE_NOT_FOUND);
+            throw new DbException(SystemConstants.BATTERY_TYPE_NOT_FOUND);
         }
         batteryTypeMapper.deleteById(id);
     }

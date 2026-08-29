@@ -9,7 +9,7 @@ public interface IUserPointsService {
 
     UserPoints getByUserId(Long userId);
 
-    void addPoints(Long userId, Integer points);
+    boolean addPoints(Long userId, Integer points);
 
     boolean deductPoints(Long userId, Integer points);
 

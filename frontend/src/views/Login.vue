@@ -4,7 +4,7 @@
       <section class="visual-panel">
         <div class="visual-copy fade-in">
           <div class="eyebrow">BATTERY RECYCLING</div>
-          <h1>废电池回收系统</h1>
+          <h1>绿源回收积分平台</h1>
           <p>
             让废旧电池回收更智能、更环保。用更轻松的方式参与绿色循环，
             让每一次投放都成为可记录、可追踪、可兑换的环保行动。

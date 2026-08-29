@@ -10,6 +10,9 @@ export default defineConfig({
     }
   },
   server: {
+        allowedHosts: [
+      '83ee346.r28.cpolar.top'
+    ],
     port: 3000,
     proxy: {
       '/api': {

@@ -57,6 +57,11 @@ public class RecycleOrder implements Serializable {
      * 备注
      */
     private String remark;
+
+    /**
+     * 订单明细快照(JSON)，订单完成时解析写入 recycle_detail
+     */
+    private String detailJson;
     
     /**
      * 创建时间

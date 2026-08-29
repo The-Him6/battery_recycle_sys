@@ -12,6 +12,7 @@
         <result column="contact_phone" property="contactPhone"/>
         <result column="order_status" property="orderStatus"/>
         <result column="remark" property="remark"/>
+        <result column="detail_json" property="detailJson"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
@@ -93,8 +94,8 @@
     </select>
     
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO recycle_order (order_number, user_id, total_count, total_points, recycle_address, contact_phone, order_status, remark)
-        VALUES (#{orderNumber}, #{userId}, #{totalCount}, #{totalPoints}, #{recycleAddress}, #{contactPhone}, #{orderStatus}, #{remark})
+        INSERT INTO recycle_order (order_number, user_id, total_count, total_points, recycle_address, contact_phone, order_status, remark, detail_json)
+        VALUES (#{orderNumber}, #{userId}, #{totalCount}, #{totalPoints}, #{recycleAddress}, #{contactPhone}, #{orderStatus}, #{remark}, #{detailJson})
     </insert>
     
     <update id="update">
@@ -106,6 +107,7 @@
             <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
             <if test="orderStatus != null">order_status = #{orderStatus},</if>
             <if test="remark != null">remark = #{remark},</if>
+            <if test="detailJson != null">detail_json = #{detailJson},</if>
         </set>
         WHERE id = #{id}
     </update>

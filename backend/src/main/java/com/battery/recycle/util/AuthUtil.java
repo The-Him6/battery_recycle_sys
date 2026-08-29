@@ -1,8 +1,9 @@
 package com.battery.recycle.util;
 
 import com.battery.recycle.constant.SystemConstants;
-import com.battery.recycle.exception.BusinessException;
-import com.battery.recycle.vo.UserContext;
+import com.battery.recycle.exception.ForbiddenException;
+import com.battery.recycle.exception.UnauthorizedException;
+import com.battery.recycle.context.UserContext;
 
 /**
  * 登录用户工具类
@@ -35,7 +36,7 @@ public class AuthUtil {
      */
     public static void requireAdmin() {
         if (!SystemConstants.ROLE_ADMIN.equals(getRole())) {
-            throw new BusinessException(SystemConstants.ADMIN_ONLY);
+            throw new ForbiddenException(SystemConstants.ADMIN_ONLY);
         }
     }
 
@@ -45,7 +46,7 @@ public class AuthUtil {
     public static UserContext getCurrentUser() {
         UserContext userContext = UserHolder.get();
         if (userContext == null) {
-            throw new BusinessException(401, SystemConstants.TOKEN_INVALID);
+            throw new UnauthorizedException(SystemConstants.TOKEN_INVALID);
         }
         return userContext;
     }

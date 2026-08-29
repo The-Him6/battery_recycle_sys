@@ -5,7 +5,9 @@ import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.entity.SeckillActivity;
 import com.battery.recycle.entity.UserPoints;
 import com.battery.recycle.entity.UserSeckillCoupon;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.BadRequestException;
+import com.battery.recycle.exception.CommonException;
+import com.battery.recycle.exception.DbException;
 import com.battery.recycle.mapper.SeckillActivityMapper;
 import com.battery.recycle.mapper.UserSeckillCouponMapper;
 import com.battery.recycle.service.ISeckillActivityService;
@@ -18,7 +20,7 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -28,25 +30,20 @@ import java.util.concurrent.TimeUnit;
  * 秒杀活动服务类
  */
 @Service("seckillActivityService")
+@RequiredArgsConstructor
 public class SeckillActivityServiceImpl implements ISeckillActivityService {
 
-    @Resource
-    private SeckillActivityMapper seckillActivityMapper;
+        private final SeckillActivityMapper seckillActivityMapper;
 
-    @Resource
-    private UserSeckillCouponMapper userSeckillCouponMapper;
+        private final UserSeckillCouponMapper userSeckillCouponMapper;
 
-    @Resource
-    private IUserPointsService userPointsService;
+        private final IUserPointsService userPointsService;
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
+        private final StringRedisTemplate stringRedisTemplate;
 
-    @Resource
-    private CacheClient cacheClient;
+        private final CacheClient cacheClient;
 
-    @Resource
-    private SeckillCouponProducer seckillCouponProducer;
+        private final SeckillCouponProducer seckillCouponProducer;
 
     /**
      * 秒杀Lua脚本，保证Redis库存和重复抢购判断原子执行
@@ -72,7 +69,7 @@ public class SeckillActivityServiceImpl implements ISeckillActivityService {
                 TimeUnit.MINUTES
         );
         if (activity == null) {
-            throw new BusinessException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
+            throw new DbException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
         }
         return activity;
     }
@@ -105,7 +102,7 @@ public class SeckillActivityServiceImpl implements ISeckillActivityService {
      */
     public void update(SeckillActivity activity) {
         if (activity.getId() == null || seckillActivityMapper.getById(activity.getId()) == null) {
-            throw new BusinessException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
+            throw new DbException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
         }
         validateActivityTime(activity);
         seckillActivityMapper.update(activity);
@@ -118,7 +115,7 @@ public class SeckillActivityServiceImpl implements ISeckillActivityService {
     public void online(Long id) {
         SeckillActivity activity = seckillActivityMapper.getById(id);
         if (activity == null) {
-            throw new BusinessException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
+            throw new DbException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
         }
         activity.setStatus(SystemConstants.SECKILL_STATUS_ONLINE);
         seckillActivityMapper.update(activity);
@@ -132,7 +129,7 @@ public class SeckillActivityServiceImpl implements ISeckillActivityService {
     public void offline(Long id) {
         SeckillActivity activity = seckillActivityMapper.getById(id);
         if (activity == null) {
-            throw new BusinessException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
+            throw new DbException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
         }
         activity.setStatus(SystemConstants.SECKILL_STATUS_OFFLINE);
         seckillActivityMapper.update(activity);
@@ -145,7 +142,7 @@ public class SeckillActivityServiceImpl implements ISeckillActivityService {
     public void preheat(Long id) {
         SeckillActivity activity = seckillActivityMapper.getById(id);
         if (activity == null) {
-            throw new BusinessException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
+            throw new DbException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
         }
         int remainStock = Math.max(activity.getStock() - activity.getSold(), 0);
         String stockKey = RedisConstants.SECKILL_STOCK_KEY + id;
@@ -172,18 +169,18 @@ public class SeckillActivityServiceImpl implements ISeckillActivityService {
         );
         int code = result == null ? -1 : result.intValue();
         if (code == 1) {
-            throw new BusinessException(SystemConstants.SECKILL_STOCK_NOT_ENOUGH);
+            throw new BadRequestException(SystemConstants.SECKILL_STOCK_NOT_ENOUGH);
         }
         if (code == 2) {
-            throw new BusinessException(SystemConstants.SECKILL_REPEAT_ORDER);
+            throw new BadRequestException(SystemConstants.SECKILL_REPEAT_ORDER);
         }
         if (code != 0) {
-            throw new BusinessException(SystemConstants.OPERATION_FAILED);
+            throw new BadRequestException(SystemConstants.OPERATION_FAILED);
         }
 
         try {
             seckillCouponProducer.sendSeckillCouponMessage(activityId, userId);
-        } catch (BusinessException e) {
+        } catch (CommonException e) {
             compensateRedis(activityId, userId);
             throw e;
         }
@@ -196,7 +193,7 @@ public class SeckillActivityServiceImpl implements ISeckillActivityService {
     public void handleSeckillMessage(Long activityId, Long userId) {
         SeckillActivity activity = seckillActivityMapper.getById(activityId);
         if (activity == null) {
-            throw new BusinessException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
+            throw new DbException(SystemConstants.SECKILL_ACTIVITY_NOT_FOUND);
         }
         if (userSeckillCouponMapper.getByActivityAndUser(activityId, userId) != null) {
             return;
@@ -204,12 +201,12 @@ public class SeckillActivityServiceImpl implements ISeckillActivityService {
 
         boolean deductSuccess = userPointsService.deductPoints(userId, activity.getPointsCost());
         if (!deductSuccess) {
-            throw new BusinessException(SystemConstants.SECKILL_POINTS_NOT_ENOUGH);
+            throw new BadRequestException(SystemConstants.SECKILL_POINTS_NOT_ENOUGH);
         }
 
         int soldRows = seckillActivityMapper.increaseSold(activityId);
         if (soldRows == 0) {
-            throw new BusinessException(SystemConstants.SECKILL_STOCK_NOT_ENOUGH);
+            throw new BadRequestException(SystemConstants.SECKILL_STOCK_NOT_ENOUGH);
         }
 
         UserSeckillCoupon coupon = new UserSeckillCoupon();
@@ -259,11 +256,11 @@ public class SeckillActivityServiceImpl implements ISeckillActivityService {
     private void validateActivityTime(SeckillActivity activity) {
         if (activity.getStartTime() != null && activity.getEndTime() != null
                 && !activity.getStartTime().isBefore(activity.getEndTime())) {
-            throw new BusinessException("秒杀结束时间必须晚于开始时间");
+            throw new BadRequestException(SystemConstants.SECKILL_END_AFTER_START);
         }
         if (activity.getCouponStartTime() != null && activity.getCouponEndTime() != null
                 && !activity.getCouponStartTime().isBefore(activity.getCouponEndTime())) {
-            throw new BusinessException("优惠券过期时间必须晚于生效时间");
+            throw new BadRequestException(SystemConstants.SECKILL_COUPON_EXPIRE_AFTER_EFFECTIVE);
         }
     }
 
@@ -272,14 +269,14 @@ public class SeckillActivityServiceImpl implements ISeckillActivityService {
      */
     private void validateSeckillActivity(SeckillActivity activity) {
         if (!SystemConstants.SECKILL_STATUS_ONLINE.equals(activity.getStatus())) {
-            throw new BusinessException(SystemConstants.SECKILL_ACTIVITY_OFFLINE);
+            throw new BadRequestException(SystemConstants.SECKILL_ACTIVITY_OFFLINE);
         }
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(activity.getStartTime())) {
-            throw new BusinessException(SystemConstants.SECKILL_ACTIVITY_NOT_STARTED);
+            throw new BadRequestException(SystemConstants.SECKILL_ACTIVITY_NOT_STARTED);
         }
         if (now.isAfter(activity.getEndTime())) {
-            throw new BusinessException(SystemConstants.SECKILL_ACTIVITY_ENDED);
+            throw new BadRequestException(SystemConstants.SECKILL_ACTIVITY_ENDED);
         }
     }
 
@@ -288,11 +285,11 @@ public class SeckillActivityServiceImpl implements ISeckillActivityService {
      */
     private void validateUserCanSeckill(SeckillActivity activity, Long userId) {
         if (userSeckillCouponMapper.getByActivityAndUser(activity.getId(), userId) != null) {
-            throw new BusinessException(SystemConstants.SECKILL_REPEAT_ORDER);
+            throw new BadRequestException(SystemConstants.SECKILL_REPEAT_ORDER);
         }
         UserPoints userPoints = userPointsService.getByUserId(userId);
         if (userPoints.getAvailablePoints() < activity.getPointsCost()) {
-            throw new BusinessException(SystemConstants.SECKILL_POINTS_NOT_ENOUGH);
+            throw new BadRequestException(SystemConstants.SECKILL_POINTS_NOT_ENOUGH);
         }
     }
 

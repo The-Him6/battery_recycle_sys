@@ -1,9 +1,10 @@
 package com.battery.recycle.aspect;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.battery.recycle.annotation.OssUpload;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.constant.SystemConstants;
+import com.battery.recycle.exception.BadRequestException;
 import com.battery.recycle.util.AliyunOssUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -23,10 +24,10 @@ import java.util.Arrays;
 @Aspect
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class OssUploadAspect {
 
-    @Resource
-    private AliyunOssUtil aliyunOssUtil;
+        private final AliyunOssUtil aliyunOssUtil;
 
     /**
      * 环绕通知：拦截带有@OssUpload注解的方法
@@ -71,13 +72,13 @@ public class OssUploadAspect {
      */
     private void validateFile(MultipartFile file, OssUpload ossUpload) {
         if (file.isEmpty()) {
-            throw new BusinessException("文件不能为空");
+            throw new BadRequestException(SystemConstants.FILE_EMPTY);
         }
 
         // 验证文件大小
         if (file.getSize() > ossUpload.maxSize()) {
             long maxSizeMB = ossUpload.maxSize() / 1024 / 1024;
-            throw new BusinessException("文件大小不能超过 " + maxSizeMB + "MB");
+            throw new BadRequestException("文件大小不能超过 " + maxSizeMB + "MB");
         }
 
         // 验证文件类型
@@ -86,7 +87,7 @@ public class OssUploadAspect {
             String contentType = file.getContentType();
             boolean isAllowed = Arrays.asList(allowedTypes).contains(contentType);
             if (!isAllowed) {
-                throw new BusinessException("不支持的文件类型: " + contentType);
+                throw new BadRequestException("不支持的文件类型: " + contentType);
             }
         }
     }

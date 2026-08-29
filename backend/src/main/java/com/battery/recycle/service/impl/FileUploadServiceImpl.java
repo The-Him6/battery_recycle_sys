@@ -1,6 +1,6 @@
 package com.battery.recycle.service.impl;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.battery.recycle.util.AliyunOssUtil;
 import com.battery.recycle.service.IFileUploadService;
@@ -14,10 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service("fileUploadService")
 @Slf4j
+@RequiredArgsConstructor
 public class FileUploadServiceImpl implements IFileUploadService {
 
-    @Resource
-    private AliyunOssUtil aliyunOssUtil;
+        private final AliyunOssUtil aliyunOssUtil;
 
     /**
      * 上传头像 (对应数据库字段: avatar)

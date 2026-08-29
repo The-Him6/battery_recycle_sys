@@ -1,11 +1,12 @@
 package com.battery.recycle.util;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.battery.recycle.constant.SystemConstants;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.BadRequestException;
+import com.battery.recycle.exception.DbException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,10 +21,10 @@ import java.util.UUID;
  * 阿里云OSS工具类
  */
 @Component
+@RequiredArgsConstructor
 public class AliyunOssUtil {
 
-    @Resource
-    private OSS ossClient;
+        private final OSS ossClient;
 
     @Value("${aliyun.oss.bucket-name}")
     private String bucketName;
@@ -40,13 +41,13 @@ public class AliyunOssUtil {
      */
     public String uploadFile(MultipartFile file, String folder) {
         if (file.isEmpty()) {
-            throw new BusinessException(SystemConstants.FILE_EMPTY);
+            throw new BadRequestException(SystemConstants.FILE_EMPTY);
         }
 
         // 获取原始文件名
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null) {
-            throw new BusinessException(SystemConstants.FILE_TYPE_ERROR);
+            throw new BadRequestException(SystemConstants.FILE_TYPE_ERROR);
         }
 
         // 获取文件扩展名
@@ -77,7 +78,7 @@ public class AliyunOssUtil {
             return fileUrl;
         } catch (IOException e) {
             e.printStackTrace();
-            throw new BusinessException("文件上传失败: " + e.getMessage());
+            throw new DbException("文件上传失败: " + e.getMessage());
         }
     }
 

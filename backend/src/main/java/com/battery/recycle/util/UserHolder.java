@@ -1,6 +1,6 @@
 package com.battery.recycle.util;
 
-import com.battery.recycle.vo.UserContext;
+import com.battery.recycle.context.UserContext;
 
 /**
  * 当前登录用户ThreadLocal工具类。

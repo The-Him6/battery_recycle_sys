@@ -2,14 +2,15 @@ package com.battery.recycle.mq.producer;
 
 import com.battery.recycle.constant.RabbitMqConstants;
 import com.battery.recycle.constant.SystemConstants;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.BadRequestException;
+import com.battery.recycle.exception.CommonException;
 import com.battery.recycle.mq.message.SeckillCouponMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -18,10 +19,10 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SeckillCouponProducer {
 
-    @Resource
-    private RabbitTemplate rabbitTemplate;
+        private final RabbitTemplate rabbitTemplate;
 
     /**
      * 发送秒杀发券消息，并等待RabbitMQ发布确认。
@@ -42,16 +43,16 @@ public class SeckillCouponProducer {
             if (confirm == null || !confirm.isAck()) {
                 log.warn("秒杀消息投递未确认：messageId={}, reason={}", message.getMessageId(),
                         confirm == null ? "confirm timeout" : confirm.getReason());
-                throw new BusinessException(SystemConstants.SECKILL_MQ_SEND_FAILED);
+                throw new BadRequestException(SystemConstants.SECKILL_MQ_SEND_FAILED);
             }
-        } catch (BusinessException e) {
+        } catch (CommonException e) {
             throw e;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new BusinessException(SystemConstants.SECKILL_MQ_SEND_FAILED);
+            throw new BadRequestException(SystemConstants.SECKILL_MQ_SEND_FAILED);
         } catch (Exception e) {
             log.error("秒杀消息投递失败：message={}", message, e);
-            throw new BusinessException(SystemConstants.SECKILL_MQ_SEND_FAILED);
+            throw new BadRequestException(SystemConstants.SECKILL_MQ_SEND_FAILED);
         }
     }
 

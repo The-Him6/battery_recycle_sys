@@ -1,22 +1,24 @@
 package com.battery.recycle.service.impl;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 
 import com.battery.recycle.common.PageRequest;
 import com.battery.recycle.common.PageResult;
 import com.battery.recycle.constant.SystemConstants;
 import com.battery.recycle.dto.ChangePasswordDTO;
 import com.battery.recycle.entity.User;
-import com.battery.recycle.exception.BusinessException;
+import com.battery.recycle.exception.BadRequestException;
+import com.battery.recycle.exception.DbException;
 import com.battery.recycle.mapper.UserMapper;
 import com.battery.recycle.service.IUserService;
-import com.battery.recycle.util.Md5Util;
 import com.battery.recycle.vo.UserVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,10 +26,10 @@ import java.util.List;
  * 用户服务类
  */
 @Service("userService")
+@RequiredArgsConstructor
 public class UserServiceImpl implements IUserService {
 
-    @Resource
-    private UserMapper userMapper;
+        private final UserMapper userMapper;
 
     /**
      * 根据ID查询用户
@@ -35,7 +37,7 @@ public class UserServiceImpl implements IUserService {
     public UserVO getById(Long id) {
         User user = userMapper.getById(id);
         if (user == null) {
-            throw new BusinessException(SystemConstants.USER_NOT_FOUND);
+            throw new DbException(SystemConstants.USER_NOT_FOUND);
         }
         UserVO vo = new UserVO();
         BeanUtils.copyProperties(user, vo);
@@ -93,11 +95,16 @@ public class UserServiceImpl implements IUserService {
         // 检查用户名是否已存在
         User existUser = userMapper.getByUsername(user.getUsername());
         if (existUser != null) {
-            throw new BusinessException(SystemConstants.USER_ALREADY_EXISTS);
+            throw new BadRequestException(SystemConstants.USER_ALREADY_EXISTS);
+        }
+
+        // 校验密码格式（仅限大小写字母、数字和 . !，长度6-20）
+        if (user.getPassword() == null || !user.getPassword().matches("^[A-Za-z0-9.!]{6,20}$")) {
+            throw new BadRequestException(SystemConstants.USER_PASSWORD_FORMAT_ERROR);
         }
 
         // 密码加密
-        user.setPassword(Md5Util.encrypt(user.getPassword()));
+        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes(StandardCharsets.UTF_8)));
 
         // 设置默认值
         if (user.getRole() == null) {
@@ -119,12 +126,12 @@ public class UserServiceImpl implements IUserService {
     public void update(User user) {
         User existUser = userMapper.getById(user.getId());
         if (existUser == null) {
-            throw new BusinessException(SystemConstants.USER_NOT_FOUND);
+            throw new DbException(SystemConstants.USER_NOT_FOUND);
         }
 
         // 如果修改了密码，需要加密
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            user.setPassword(Md5Util.encrypt(user.getPassword()));
+            user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes(StandardCharsets.UTF_8)));
         }
 
         userMapper.update(user);
@@ -134,13 +141,13 @@ public class UserServiceImpl implements IUserService {
      * 修改当前用户密码
      */
     public void changePassword(Long userId, ChangePasswordDTO dto) {
-        String encryptedOldPassword = Md5Util.encrypt(dto.getOldPassword());
+        String encryptedOldPassword = DigestUtils.md5DigestAsHex(dto.getOldPassword().getBytes(StandardCharsets.UTF_8));
         User user = userMapper.getByIdAndPassword(userId, encryptedOldPassword);
         if (user == null) {
-            throw new BusinessException(SystemConstants.USER_OLD_PASSWORD_ERROR);
+            throw new BadRequestException(SystemConstants.USER_OLD_PASSWORD_ERROR);
         }
         if (dto.getOldPassword().equals(dto.getNewPassword())) {
-            throw new BusinessException(SystemConstants.USER_NEW_PASSWORD_SAME_AS_OLD);
+            throw new BadRequestException(SystemConstants.USER_NEW_PASSWORD_SAME_AS_OLD);
         }
 
         User updateUser = new User();
@@ -155,7 +162,7 @@ public class UserServiceImpl implements IUserService {
     public void deleteById(Long id) {
         User user = userMapper.getById(id);
         if (user == null) {
-            throw new BusinessException(SystemConstants.USER_NOT_FOUND);
+            throw new DbException(SystemConstants.USER_NOT_FOUND);
         }
         userMapper.deleteById(id);
     }
