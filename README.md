@@ -15,7 +15,7 @@
 | **RabbitMQ** | 秒杀异步发券消息队列 |
 | **Redisson** | 分布式锁（秒杀防重） |
 | **JWT (jjwt 0.12)** | 登录认证 Token |
-| **阿里云 OSS** | 头像/商品图片/电池图标存储 |
+| **阿里云 OSS(可换本地存储)** | 头像/商品图片/电池图标存储 |
 | **Knife4j** | OpenAPI 3 接口文档与在线测试 |
 | **Lombok** | 代码简化 |
 
@@ -123,7 +123,7 @@ npm run dev
 | `RABBITMQ_USERNAME` | thehim | MQ 用户名 |
 | `RABBITMQ_PASSWORD` | 123 | MQ 密码 |
 | `RABBITMQ_VIRTUAL_HOST` | /thehim | MQ 虚拟主机 |
-| `OSS_ENDPOINT` | https://oss-cn-beijing.aliyuncs.com | OSS 地域节点 |
+| `OSS_ENDPOINT` | - | OSS 地域节点 |
 | `OSS_ACCESS_KEY_ID` | - | OSS 访问 Key |
 | `OSS_ACCESS_KEY_SECRET` | - | OSS 访问密钥 |
 | `OSS_BUCKET_NAME` | - | OSS 存储桶名 |
